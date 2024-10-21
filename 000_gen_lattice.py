@@ -96,6 +96,57 @@ for pp in ele_types:
 
 out_lattice.append('env.vars.default_to_zero=False')
 
+## Variables
+variables = dct['vars']
+v_names = []
+v_expr = []
+for nn, vv in variables.items():
+    v_names.append(nn)
+    v_expr.append(vv['expr'])
+
+tt_vars = xt.Table({
+    'name': np.array(v_names),
+    'expr': np.array(v_expr),
+})
+
+tt_strengths = tt_vars.rows['k.*']
+other = sorted(list(set(list(tt_vars.name)) - set(list(tt_strengths.name))))
+tt_other = tt_vars.rows[other]
+
+out_strengths = []
+out_strengths.append('import xtrack as xt')
+out_strengths.append('env = xt.get_environment()')
+out_strengths.append('env.vars.default_to_zero=True')
+out_strengths.append('')
+for nn in sorted(list(tt_strengths.name)):
+    ee = tt_vars['expr', nn]
+    if isinstance(ee, str):
+        out_strengths.append(f'env["{nn}"] = "{ee}"')
+    else:
+        out_strengths.append(f'env["{nn}"] = {ee}')
+out_strengths.append('')
+out_strengths.append('env.vars.default_to_zero=False')
+
+out_other = []
+out_other.append('import xtrack as xt')
+out_other.append('env = xt.get_environment()')
+out_other.append('env.vars.default_to_zero=True')
+out_other.append('')
+for nn in sorted(list(tt_other.name)):
+    ee = tt_vars['expr', nn]
+    if isinstance(ee, str):
+        out_other.append(f'env["{nn}"] = "{ee}"')
+    else:
+        out_other.append(f'env["{nn}"] = {ee}')
+out_other.append('')
+out_other.append('env.vars.default_to_zero=False')
+
 with open('fccee_z.py', 'w') as fid:
     fid.write('\n'.join(out_lattice))
+
+with open('fccee_z_strengths.py', 'w') as fid:
+    fid.write('\n'.join(out_strengths))
+
+with open('fccee_z_parameters.py', 'w') as fid:
+    fid.write('\n'.join(out_other))
 
