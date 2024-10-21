@@ -39,7 +39,10 @@ for nn, el_params in elements.items():
     ee_def_tokens.append(f"'{nn}'")
     ee_def_tokens.append(f"'{par}'")
     for pp, vv in el_params.items():
-        ee_def_tokens.append(f"{pp}={vv}")
+        if isinstance(vv, str):
+            ee_def_tokens.append(f"{pp}='{vv}'")
+        else:
+            ee_def_tokens.append(f"{pp}={vv}")
     ee_def = 'env.new(' + ', '.join(ee_def_tokens) + ')'
     element_defs.append(ee_def)
 
@@ -49,22 +52,17 @@ tt_elements = xt.Table({
     'element_defs': np.array(element_defs),
 })
 
-tt_marker = tt_elements.rows[tt_elements.parent == 'marker']
-tt_sbend = tt_elements.rows[tt_elements.parent == 'sbend']
-tt_rbend = tt_elements.rows[tt_elements.parent == 'rbend']
-tt_quad = tt_elements.rows[tt_elements.parent == 'quadrupole']
-tt_sext = tt_elements.rows[tt_elements.parent == 'sextupole']
-tt_octu = tt_elements.rows[tt_elements.parent == 'octupole']
-tt_mult = tt_elements.rows[tt_elements.parent == 'multipole']
-tt_drift = tt_elements.rows[tt_elements.parent == 'drift']
-tt_cav = tt_elements.rows[tt_elements.parent == 'rfcavity']
+tt_ele_dct ={}
 
-other = set(list(tt_elements.name)) - set(
-    list(tt_marker.name) +
-    list(tt_sbend.name) + list(tt_rbend.name) +
-    list(tt_quad.name) + list(tt_sext.name) +
-    list(tt_octu.name) + list(tt_mult.name) +
-    list(tt_drift.name) + list(tt_cav.name))
+ele_types = ['marker', 'sbend', 'rbend', 'quadrupole', 'sextupole',
+           'octupole', 'multipole', 'drift', 'rfcavity']
+
+for pp in ele_types:
+    tt_ele_dct[pp] = tt_elements.rows[tt_elements.parent == pp]
+
+other = set(list(tt_elements.name))
+for pp in tt_ele_dct:
+    other = other.difference(set(list(tt_ele_dct[pp].name)))
 
 assert len(other) == 0
 
@@ -72,6 +70,15 @@ out_lattice = []
 out_lattice.append('import xtrack as xt')
 out_lattice.append('env = xt.get_environment()')
 out_lattice.append('')
-out_lattice.append('###########')
-out_lattice.append('# Markers #')
-out_lattice.append('###########')
+
+for pp in ele_types:
+    if len(tt_ele_dct[pp]) == 0:
+        continue
+    out_lattice.append(f'# {pp} elements:')
+    for nn in tt_ele_dct[pp].name:
+        out_lattice.append(tt_elements['element_defs', nn])
+    out_lattice.append('')
+
+with open('fccee_z.py', 'w') as fid:
+    fid.write('\n'.join(out_lattice))
+
