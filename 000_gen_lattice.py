@@ -69,7 +69,22 @@ assert len(other) == 0
 out_lattice = []
 out_lattice.append('import xtrack as xt')
 out_lattice.append('env = xt.get_environment()')
+out_lattice.append('env.vars.default_to_zero=True')
 out_lattice.append('')
+
+BASE_TYPE_DEFS = '''
+env.new("sbend", "Bend")
+env.new("rbend", "Bend", rbend=True)
+env.new("quadrupole", "Quadrupole")
+env.new("sextupole", "Sextupole")
+env.new("octupole", "Octupole")
+env.new("marker", "Marker")
+env.new("rfcavity", "Cavity")
+env.new("multipole", "Multipole", knl=[0, 0, 0, 0, 0, 0])
+env.new("solenoid", "Solenoid")
+env.new("drift", "Drift")
+'''
+out_lattice.append(BASE_TYPE_DEFS)
 
 for pp in ele_types:
     if len(tt_ele_dct[pp]) == 0:
@@ -78,6 +93,8 @@ for pp in ele_types:
     for nn in tt_ele_dct[pp].name:
         out_lattice.append(tt_elements['element_defs', nn])
     out_lattice.append('')
+
+out_lattice.append('env.vars.default_to_zero=False')
 
 with open('fccee_z.py', 'w') as fid:
     fid.write('\n'.join(out_lattice))
