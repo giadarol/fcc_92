@@ -85,12 +85,10 @@ opt_pant = line.match(
     vary=vary_all
 )
 
-# Start using Pantaleo's solution for upstream section
-
-# import json
-# with open('mccs_yl.json', 'r') as fid:
-#     strengths_ccsyl = json.load(fid)
-# env.vars(strengths_ccsyl)
+import json
+with open('mccs_yl.json', 'r') as fid:
+    strengths_ccsyl = json.load(fid)
+env.vars(strengths_ccsyl)
 
 # wipe all quads
 for kk in opt_pant.get_knob_values(0).keys():
