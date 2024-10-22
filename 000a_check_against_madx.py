@@ -15,9 +15,9 @@ tw_ref = line_ref.twiss4d(strengths=True)
 
 env = xt.Environment()
 env.call('fccee_z_parameters.py')
-env.call('fccee_z_strengths.py')
 env.call('fccee_z_elements.py')
 env.call('fccee_z_lattice.py')
+env.call('fccee_z_strengths.py')
 
 # tw_test = env['ring_full'].twiss4d(betx=tw_ref['betx', 0], bety=tw_ref['bety', 0],
 #                                    _continue_if_lost=True)
