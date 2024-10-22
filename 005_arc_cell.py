@@ -69,3 +69,4 @@ opt = opt_quads
 opt.step(10)
 opt._step_simplex(1000)
 
+# Match chromaticity
