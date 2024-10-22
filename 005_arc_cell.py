@@ -45,7 +45,7 @@ for kk in kq.keys():
 
 tar_mu = xt.TargetSet(at=xt.END,mux=env['muxu'], muy=env['muyu'])
 tar_bet = xt.Target(lambda tw: tw.rows['qf.*']['betx'].std(), 0., tag='betx')
-tar_chrom = xt.TargetSet(dqx=0, dqy=0)
+tar_chrom = xt.TargetSet(dqx=tw0.dqx, dqy=tw0.dqy)
 
 opt_pant = line.match(
     solve=False,
@@ -54,6 +54,48 @@ opt_pant = line.match(
     vary=vary_all,
 )
 opt = opt_pant
+
+line_starfish = 3*120 * env['cell_u']
+
+# Put the fractional tune on 0.2
+opt_tune_star = line_starfish.match(
+    solve=False,
+    method='4d',
+    vary=vary_kq['cell'],
+    targets=xt.TargetSet(qx=254.2, qy=222.2)
+)
+opt = opt_tune_star
+opt.step(20)
+tw_sf = line_starfish.twiss4d(strengths=True)
+
+nemitt_x=1e-7
+nemitt_y=1e-7
+
+n_test = 50
+p_test = line_starfish.build_particles(
+    method='4d',
+    x_norm=np.linspace(0, 200, n_test),
+    y_norm=np.linspace(0, 200, n_test),
+    nemitt_x=nemitt_x,
+    nemitt_y=nemitt_y,
+)
+
+line_starfish.track(num_turns=6, particles=p_test, turn_by_turn_monitor=True,
+           with_progress=1)
+mon = line_starfish.record_last_track
+
+ncoord = tw_sf.get_normalized_coordinates(mon,
+                                          nemitt_x=nemitt_x, nemitt_y=nemitt_y)
+
+
+import matplotlib.pyplot as plt
+plt.close('all')
+plt.figure(1)
+plt.plot(ncoord.y_norm, ncoord.py_norm, '.')
+plt.axis('equal')
+plt.show()
+
+prrrrr
 
 # wipe all quads and sextupoles
 for kk in opt_pant.get_knob_values(0).keys():
