@@ -103,52 +103,106 @@ opt.step(20)
 tw_sf = line_starfish.twiss4d(strengths=True)
 
 nemitt_x=1e-7
-nemitt_y=1e-7
+nemitt_y=1e-8
 
-n_test = 50
-p_test = line_starfish.build_particles(
+n_test = 20
+p_test_x = line_starfish.build_particles(
     method='4d',
-    x_norm=np.linspace(0, 200, n_test),
-    y_norm=np.linspace(0, 200, n_test),
+    x_norm=np.linspace(0, 400, n_test),
+    y_norm=0,
+    nemitt_x=nemitt_x,
+    nemitt_y=nemitt_y,
+)
+
+p_test_y = line_starfish.build_particles(
+    method='4d',
+    x_norm=0,
+    y_norm=np.linspace(0, 400, n_test),
+    nemitt_x=nemitt_x,
+    nemitt_y=nemitt_y,
+)
+
+p_test_xy = line_starfish.build_particles(
+    method='4d',
+    x_norm=np.linspace(0, 400, n_test),
+    y_norm=np.linspace(0, 400, n_test),
     nemitt_x=nemitt_x,
     nemitt_y=nemitt_y,
 )
 
 def starfish(plot=False):
-    line_starfish.track(num_turns=6, particles=p_test.copy(), turn_by_turn_monitor=True,
-            with_progress=1)
-    mon = line_starfish.record_last_track
-
-    ncoord = tw_sf.get_normalized_coordinates(mon,
+    line_starfish.track(num_turns=6, particles=p_test_x.copy(), turn_by_turn_monitor=True)
+    mon_x = line_starfish.record_last_track
+    ncoord_x = tw_sf.get_normalized_coordinates(mon_x,
                                             nemitt_x=nemitt_x, nemitt_y=nemitt_y)
+
+
+    line_starfish.track(num_turns=6, particles=p_test_y.copy(), turn_by_turn_monitor=True)
+    mon_y = line_starfish.record_last_track
+    ncoord_y = tw_sf.get_normalized_coordinates(mon_y,
+                                            nemitt_x=nemitt_x, nemitt_y=nemitt_y)
+
+    line_starfish.track(num_turns=6, particles=p_test_xy.copy(), turn_by_turn_monitor=True)
+    mon_xy = line_starfish.record_last_track
+    ncoord_xy = tw_sf.get_normalized_coordinates(mon_xy,
+                                            nemitt_x=nemitt_x, nemitt_y=nemitt_y)
+
     if plot:
         import matplotlib.pyplot as plt
-        plt.figure(figsize=(6.4*1.8, 4.8))
-        plt.subplot(122)
-        plt.plot(ncoord.y_norm, ncoord.py_norm, '.')
-        plt.axis('equal')
-        plt.xlabel('y')
-        plt.ylabel('py')
-        plt.subplot(121)
-        plt.plot(ncoord.x_norm, ncoord.px_norm, '.')
+        plt.figure(figsize=(6.4*2.2, 4.8))
+        plt.subplot(131)
+        plt.plot(ncoord_x.x_norm, ncoord_x.px_norm, '.')
         plt.axis('equal')
         plt.xlabel('x')
         plt.ylabel('px')
+        plt.subplot(132)
+        plt.plot(ncoord_y.y_norm, ncoord_y.py_norm, '.')
+        plt.axis('equal')
+        plt.xlabel('y')
+        plt.ylabel('py')
+        plt.subplot(133)
+        plt.plot(ncoord_xy.x_norm, ncoord_xy.py_norm, '.')
+        plt.axis('equal')
+        plt.xlabel('x=y')
+        plt.ylabel('py')
 
-    out ={'n_coord': ncoord._data}
+    out ={'ncoord_x': ncoord_x._data, 'ncoord_y': ncoord_y._data, 'ncoord_xy': ncoord_xy._data}
+
+    px_norm_rms_5 = ncoord_x.px_norm[:, 5].std()
+    out['px_norm_rms_5'] = px_norm_rms_5
 
     return out
 
+class ActionStarfish(xt.Action):
+
+    def run(self):
+        return starfish()
+
 opt_pant_sext.tag('chrom_only')
+
+opt_starfish = line.match(
+    solve=False,
+    method='4d',
+    vary=vary_ks['cell'],
+    targets=[tar_chrom,
+             ActionStarfish().target('px_norm_rms_5', 0)]
+)
+opt = opt_starfish
+opt.step(20)
 
 import matplotlib.pyplot as plt
 plt.close('all')
-starfish(plot=True)
+opt_starfish.reload(-1)
+sf2 = starfish(plot=True)
+plt.suptitle('After optimization')
+
+opt_chrom.reload(-1)
+sf1 = starfish(plot=True)
 plt.suptitle('Only chromaticity correction')
 
+
 opt_pant_sext.reload(0)
-opt_pant_sext.step(10)
-starfish(plot=True)
+sf0 = starfish(plot=True)
 plt.suptitle("Pantaleo's solution")
 
 plt.show()
