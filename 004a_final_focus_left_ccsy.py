@@ -95,7 +95,6 @@ opt_triplet = line.match(
 opt = opt_triplet
 opt.step(100)
 
-
 opt_sdm1l = opt_triplet.clone(
     name='sdm1l', remove_vary=True,
     add_targets=[tar_sdm1l] + [
@@ -124,7 +123,7 @@ opt_rsext = line.match(
     start='sdy1l::1', end='sdy2l::1', init_at='ipimag2',
     betx=135, bety=10, # Rough estimate
     targets=tar_rmat_sext, vary=vary_kq['yquads'])
-
+opt = opt_rsext
 opt.disable(target=True)
 opt.enable(target=0)
 opt.step(20)
@@ -161,8 +160,7 @@ opt_full = opt_imag2_with_qy.clone(name='full',
                         add_targets=opt_triplet.targets,
                         add_vary=opt_triplet.vary)
 opt = opt_full
-opt_full.enable(target=True, vary=True)
-
+opt.enable(target=True, vary=True)
 opt.targets[3].weight = 1000
 opt.targets[9].weight = 1000
 opt.step(100)
