@@ -19,23 +19,34 @@ env.new_line(name='ccs_xl', components=[2*['scrabl'], 'lx0', 'qd20l', 'd8l', 'qf
 env.new_line(name='ccs_yl', components=['ipimag3', 'qf10l', 'lx0', 'b4lc', 'lx0', 'qd9l', 'lx0', 'b4lb', 'lx0', 'qf8l', 'lx0', 'b4la', 'lx0', 'qd7l', 'lx0', 4*['sdy2l'], 'decdl', 'lx0', 'qy1l', 'd3l', 'qy2l', 'd3l', 'qy3l', 'd4l', 'qy3l', 'lx0', 'b3l', 'lx0', 'qy4l', 'ipimag2', 'qy4l', 'lx0', 'b3l', 'lx0', 'qy3l', 'd4l', 'qy3l', 'd3l', 'qy2l', 'd3l', 'qy1l', 'lx0', 4*['sdy1l'], 'decdl', 'lx0', 'qd6l', 'lx0', 'b1lb', 'lx0', 'qf5l', 'lx0', 'b1la', 'lx0', 'qd4l', 'lx0', 2*['sdm1l'], 'oct1l', 'dec1l', 'lx0', 'b0l', 'lx0', 'qd2l', 'lx0', 'b0l', 'lx0', 'qf2l', 'lx0', 'bsl', 'lx0', 'qd1l', 'd2', 'oct0l', 'qf1bl', 'lx0', 'qf1al', 'd1', 'qd0bl', 'lx0', 'qd0al', 'd0', 'ip'])
 env.new_line(name='ccs_xr', components=[2*['scrabr'], 'lx0', 'qd20r', 'd8r', 'qf19r', 'd8r', 'qd18r', 'd8r', 'qf17r', 'd8r', 'qd16r', 'lx0', 'b7r', 'lx0', 'qf15r', 'lx0', 'b7r', 'lx0', 'qd14r', 'd7r', 'qf13r', 'lx0', 'decfr', 4*['sfx2r'], 'lx0', 'qx0r', 'd7r', 'qx1r', 'lx0', 'b6r', 'lx0', 'qx2r', 'ipimag4', 'qx2r', 'lx0', 'b6r', 'lx0', 'qx1r', 'd7r', 'qx0r', 'lx0', 4*['sfx1r'], 'decfr', 'lx0', 'qf12r', 'd7r', 'qd11r', 'lx0', 'b5rb', 'lx0', 'oct2r', 2*['sfm2r'], 'lx0'])
 env.new_line(name='ccs_yr', components=['ipimag3', 'qf10r', 'lx0', 'b5ra', 'lx0', 'qd9r', 'lx0', 'b4rb', 'lx0', 'qf8r', 'lx0', 'b4ra', 'lx0', 'qd7r', 'lx0', 4*['sdy2r'], 'decdr', 'lx0', 'qy1r', 'lx0', 'b3r', 'lx0', 'qy2r', 'lx0', 'b3r', 'lx0', 'qy3r', 'lx0', 'b3r', 'lx0', 'qy4r', 'ipimag2', 'qy4r', 'lx0', 'b3r', 'lx0', 'qy3r', 'lx0', 'b3r', 'lx0', 'qy2r', 'lx0', 'b3r', 'lx0', 'qy1r', 'lx0', 4*['sdy1r'], 'decdr', 'lx0', 'qd6r', 'lx0', 'b1rb', 'lx0', 'qf5r', 'lx0', 'b1ra', 'lx0', 'qd4r', 'lx0', 2*['sdm1r'], 'oct1r', 'dec1r', 'lx0', 'b0r', 'lx0', 'qd2r', 'lx0', 'bsr', 'lx0', 'qf2r', 'lx0', 'bsr', 'lx0', 'qd1r', 'd2r', 'oct0r', 'qf1br', 'lx0', 'qf1ar', 'd1', 'qd0br', 'lx0', 'qd0ar', 'd0', 'ip'])
-# env.new('mccs_yl', ['-ccs_yl);
-# env.new('mccs_yxl', ['-ccs_yl,-ccs_xl);
-# env.new('ccs_yxl', ['ccs_xl,ccs_yl);
-# env.new('mccs_yr', ['-ccs_yr);
-# env.new('mccs_yxr', ['-ccs_yr,-ccs_xr);
-# env.new('ccs_yxr', ['ccs_xr,ccs_yr);
-# env.new('ffl', ['ccs_xl,ccs_yl);
-# env.new('ffr', ['ccs_xr,ccs_yr);
-# env.new('fflr', ['ffl,-ffr);
-# env.new('ring_u', ['28*cell_u,rfc,28*cell_u,rfc,28*cell_u,rfc,28*cell_u,rfc,28*cell_u,rfc,28*cell_u,rfc,28*cell_u,rfc,28*cell_u,rfc);
-# env.new('arc_uu', ['2*cell_u);
-# env.new('arc_uv', ['cell_u,cell_u,cell_v,cell_v);
-# env.new('arc_octant', ['25*cell_u);
-# env.new('arc_ussu', ['cell_us,straight_l,-straight_r,-cell_su);
-# env.new('arc_ufrflu', ['cell_uffl,ffl,-ffr,-cell_uffr);
-# env.new('mffl', ['-ffl);
-# env.new('mffr', ['-ffr);
+
+
+env['ffl'] = env['ccs_xl'] + env['ccs_yl']
+env['ffr'] = env['ccs_xr'] + env['ccs_yr']
+
+env['mccs_yl'] = -env['ccs_yl']
+env['mccs_yxl'] = -env['ccs_yl'] + (-env['ccs_xl'])
+env['ccs_yxl'] = env['ccs_xl'] + env['ccs_yl']
+env['mccs_yr'] = -env['ccs_yr']
+env['mccs_yxr'] = -env['ccs_yr'] + (-env['ccs_xr'])
+env['ccs_yxr'] = env['ccs_xr'] + env['ccs_yr']
+
+env['fflr'] = env['ffl'] + (-env['ffr'])
+
+ln_rfc = env.new_line(components=['rfc'])
+env['ring_u'] = 8 * (28 * env['cell_u'] + ln_rfc)
+
+env['arc_uu'] = 2 * env['cell_u']
+env['arc_uv'] = 2 * env['cell_u'] + 2 * env['cell_v']
+env['arc_octant'] = 25 * env['cell_u']
+env['arc_ussu'] = (env['cell_us'] + env['straight_l']
+                   + (-env['straight_r']) + (-env['cell_su']))
+
+env['arc_ufrflu'] = (env['cell_uffl'] + env['ffl']
+                  + (-env['ffr']) + (-env['cell_uffr']))
+
+env['mffl'] = -env['ffl']
+env['mffr'] = -env['ffr']
 # env.new('arc_us', ['-straight_r,-cell_su,-cell_ur,arc_octant,cell_ul,cell_us,straight_l);
 # env.new('arc_sufl', ['-straight_l,-cell_us,-cell_ul,arc_octant,cell_l3,cell_uffl,ffl);
 # env.new('arc_sufr', ['-straight_r,-cell_su,-cell_ur,arc_octant,cell_r3,cell_uffr,ffr);
