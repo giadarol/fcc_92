@@ -62,10 +62,9 @@ env['marc_sufr'] = -env['arc_sufr']
 env['us_sector'] = env['arc_us'] + ln_rfc + env['arc_us']
 env['fcc_sector_ds'] = (-env['arc_sudsr'] + ln_rfc + env['arc_sudsl'])
 env['fcc_sector'] = (-env['arc_sufr'] + env['arc_sufl'])
-# env.new('fcc_sector', ['-arc_sufr,arc_sufl);
-# env.new('fcc_sector_l', ['-arc_sufl,rfc,arc_sufl);
-# env.new('fcc_sector_r', ['-arc_sufr,rfc,arc_sufr);
-# env.new('ring_us', ['4*us_sector);
-# env.new('ring_us_ds', ['4*fcc_sector_ds);
+env['fcc_sector_l'] = (-env['arc_sufl'] + ln_rfc + env['arc_sufl'])
+env['fcc_sector_r'] = (-env['arc_sufr'] + ln_rfc + env['arc_sufr'])
+env['ring_us'] = 4 * env['us_sector']
+env['ring_us_ds'] = 4 * env['fcc_sector_ds']
 env['ring_full'] = 4 * env['fcc_sector']
-# env.new('fccee_p_ring', ['ring_full);
+env['fccee_p_ring'] = env['ring_full']
