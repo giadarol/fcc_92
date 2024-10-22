@@ -169,7 +169,9 @@ def starfish(plot=False):
     out ={'ncoord_x': ncoord_x._data, 'ncoord_y': ncoord_y._data, 'ncoord_xy': ncoord_xy._data}
 
     px_norm_rms_5 = ncoord_x.px_norm[:, 5].std()
+    pxy_norm_rms_5 = ncoord_xy.py_norm[:, 5].std()
     out['px_norm_rms_5'] = px_norm_rms_5
+    out['pxy_norm_rms_5'] = pxy_norm_rms_5
 
     return out
 
@@ -179,16 +181,17 @@ class ActionStarfish(xt.Action):
         return starfish()
 
 opt_pant_sext.tag('chrom_only')
-
+act = ActionStarfish()
 opt_starfish = line.match(
     solve=False,
     method='4d',
     vary=vary_ks['cell'],
     targets=[tar_chrom,
-             ActionStarfish().target('px_norm_rms_5', 0)]
+             act.target('px_norm_rms_5', 0),
+             act.target('pxy_norm_rms_5', 0)]
 )
 opt = opt_starfish
-opt.step(20)
+opt.step(10)
 
 import matplotlib.pyplot as plt
 plt.close('all')
