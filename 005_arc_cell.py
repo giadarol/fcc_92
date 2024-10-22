@@ -1,4 +1,5 @@
 import xtrack as xt
+import numpy as np
 
 env = xt.Environment()
 env.call('fccee_z_parameters.py')
@@ -17,6 +18,9 @@ tt0_sext = tt0.rows[tt0.element_type == 'Sextupole']
 kq = {}
 kq['cell'] = ['kqd1', 'kqf2', 'kqd3', 'kqf4', 'kqd5', 'kqf6']
 
+ks = {}
+ks['cell'] = ['ksffam1', 'ksffam2', 'ksdfam1', 'ksdfam2']
+
 # Build vary objects keeping the initial signs
 vary_kq = {}
 for kk in kq.keys():
@@ -24,6 +28,14 @@ for kk in kq.keys():
     for nn in kq[kk]:
         vv = env[nn]
         vary_kq[kk].append(xt.Vary(nn,
+                    limits={False:(-10, 0.), True:(0., 10.)}[vv>=0.], tag=kk))
+
+vary_ks = {}
+for kk in ks.keys():
+    vary_ks[kk] = []
+    for nn in ks[kk]:
+        vv = env[nn]
+        vary_ks[kk].append(xt.Vary(nn,
                     limits={False:(-10, 0.), True:(0., 10.)}[vv>=0.], tag=kk))
 vary_all = []
 for kk in kq.keys():
@@ -34,8 +46,19 @@ opt_pant = line.match(
     method='4d',
     targets=[
         xt.TargetSet(at=xt.END,
-                     mux=env['muxu'], muy=env['muyu'])
+                     mux=env['muxu'], muy=env['muyu']),
+        xt.Target(lambda tw: tw.rows['qf.*']['betx'].std(), 0.)
     ],
     vary=vary_all,
 )
 opt = opt_pant
+
+# wipe all quads
+for kk in opt_pant.get_knob_values(0).keys():
+    env[kk] = 0.01 * np.sign(env[kk])
+
+
+opt_quads = opt_pant.clone()
+opt = opt_quads
+opt.step(10)
+opt._step_simplex(1000)

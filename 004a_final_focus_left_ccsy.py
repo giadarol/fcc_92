@@ -35,7 +35,7 @@ for kk in kq.keys():
     vary_kq[kk] = []
     for nn in kq[kk]:
         vv = env[nn]
-        vary_kq[kk].append(xt.Vary(nn,
+        vary_kq[kk].append(xt.Vary(nn, step=1e-8, #!!!!
                     limits={False:(-10, 0.), True:(0., 10.)}[vv>=0.], tag=kk))
 vary_all = []
 for kk in kq.keys():
