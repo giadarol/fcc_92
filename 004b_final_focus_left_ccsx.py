@@ -222,5 +222,8 @@ opt_full._step_simplex(1000)
 opt.plot()
 opt_full.target_mismatch(ret=True).show()
 
+tt = line.get_table(attr=True)
+tt_quad = tt.rows[tt.element_type == 'Quadrupole']
+
 # Check that the closed twiss is still ok
 # env['ring_full'].twiss4d().plot()
