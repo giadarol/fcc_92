@@ -41,6 +41,7 @@ vary_all = []
 for kk in kq.keys():
     vary_all += vary_kq[kk]
 
+# Targets adapted based on what is found in the optics
 tar_sdm1l = xt.TargetSet(betx=xt.LessThan(10.), bety=xt.LessThan(12.),
                      alfx=xt.GreaterThan(-1.), alfy=0.0,
                      at='sdm1l::0')
@@ -63,8 +64,6 @@ opt_pant = line.match(
     vary=vary_all,
     )
 
-prrrr
-
 # wipe all quads
 for kk in opt_pant.get_knob_values(0).keys():
     env[kk] = 0.001 * np.sign(env[kk])
@@ -80,34 +79,43 @@ opt_triplet = line.match(
     betx=env['bxip'],
     bety=env['byip'],
     targets=[
-        xt.TargetSet(bety=xt.LessThan(7000), at='qd0bl'),
+        xt.TargetSet(bety=xt.LessThan(8550), at='qd0bl'),
 
-        xt.TargetSet(bety=xt.LessThan(2200), at='qf1bl'), # This quad is off!
-        xt.TargetSet(bety=xt.GreaterThan(2000), at='qf1bl'),
+        xt.TargetSet(bety=xt.LessThan(3500), at='qf1bl'), # This quad is off!
+        xt.TargetSet(bety=xt.GreaterThan(3300), at='qf1bl'),
         # End of final focus
 
-        xt.TargetSet(betx=xt.GreaterThan(500), at='qd1l'),
-        xt.TargetSet(betx=xt.LessThan(1000), at='qd1l'),
-        xt.TargetSet(bety=xt.LessThan(2150), at='qd1l'),
-        xt.TargetSet(bety=xt.GreaterThan(2050), at='qd1l'),
+        xt.TargetSet(betx=xt.GreaterThan(1300), at='qd1l'),
+        xt.TargetSet(betx=xt.LessThan(1400), at='qd1l'),
+        xt.TargetSet(bety=xt.LessThan(3200), at='qd1l'),
+        xt.TargetSet(bety=xt.GreaterThan(3100), at='qd1l'),
     ],
     vary = vary_kq['triplet']
 )
 opt = opt_triplet
 opt.step(100)
 
-opt_imag1 = opt_triplet.clone(
-    name='imag1', remove_vary=True,
-    add_targets=[tar_sdm1l] + [
-        xt.TargetSet(betx=xt.LessThan(1200), at='qf2l'),
-        xt.TargetSet(bety=xt.GreaterThan(500), at='qf2l'),
-    ],  add_vary=vary_kq['section_a'])
-opt = opt_imag1
 
-opt_dsdy1l = opt_imag1.clone(
+opt_sdm1l = opt_triplet.clone(
+    name='sdm1l', remove_vary=True,
+    add_targets=[tar_sdm1l] + [
+        xt.TargetSet(betx=xt.LessThan(3000), at='qf2l'),
+        xt.TargetSet(bety=xt.GreaterThan(900), at='qf2l'),
+    ],  add_vary=vary_kq['section_a'])
+opt = opt_sdm1l
+opt.step(100)
+
+opt_dsdy1l = opt_sdm1l.clone(
     name='sdy1l', remove_targets=True, remove_vary=True,
     add_targets=[tar_sdy1l], add_vary=vary_kq['section_b'])
-opt_dsdy1l.step(100)
+opt = opt_dsdy1l
+opt.step(100)
+
+# Refine optics at first sextupole using sections a and b (no other target)
+opt_dsdy1l_refine = opt_dsdy1l.clone(name='dsdy1l_refine',
+                                     add_vary=vary_kq['section_a'])
+opt = opt_dsdy1l_refine
+opt.step(100)
 
 # Match r matrix s1/s2
 opt_rsext = line.match(
@@ -127,10 +135,6 @@ opt.step(20)
 opt.enable(target=3)
 opt.step(20)
 
-# Refine optics at first sextupole using sections a and b (no other target)
-opt_dsdy1l_refine = opt_dsdy1l.clone(name='dsdy1l_refine',
-                                     add_vary=vary_kq['section_a'])
-opt.step(100)
 
 opt_imag2_with_qy = opt_dsdy1l.clone(
     name='imag2_with_qy',
@@ -138,6 +142,7 @@ opt_imag2_with_qy = opt_dsdy1l.clone(
     add_targets=[tar_ipimag2, tar_sdm1l, tar_rmat_sext])
 opt = opt_imag2_with_qy
 opt.step(100)
+
 
 # Refine rmatrix
 opt.disable(target=True, vary=True)

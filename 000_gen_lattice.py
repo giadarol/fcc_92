@@ -15,9 +15,9 @@ with open(fname, 'r') as fid:
 lines = [ll for ll in lines if 'LINE=' not in ll.replace(' ', '')]
 
 # Patch: issue with power
-for ii, ll in enumerate(lines):
-    if ll.startswith('KCRABL'):
-        lines[ii] = 'KCRABL=0.0;\n'
+# for ii, ll in enumerate(lines):
+#     if ll.startswith('KCRABL'):
+#         lines[ii] = 'KCRABL=0.0;\n'
 
 dct = parser.parse_string('\n'.join(lines))
 loader.load_string('\n'.join(lines))
