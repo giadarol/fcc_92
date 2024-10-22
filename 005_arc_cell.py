@@ -27,7 +27,7 @@ for kk in kq.keys():
     vary_kq[kk] = []
     for nn in kq[kk]:
         vv = env[nn]
-        vary_kq[kk].append(xt.Vary(nn,
+        vary_kq[kk].append(xt.Vary(nn, step=1e-6,
                     limits={False:(-10, 0.), True:(0., 10.)}[vv>=0.], tag=kk))
 
 vary_ks = {}
@@ -35,30 +35,37 @@ for kk in ks.keys():
     vary_ks[kk] = []
     for nn in ks[kk]:
         vv = env[nn]
-        vary_ks[kk].append(xt.Vary(nn,
+        vary_ks[kk].append(xt.Vary(nn, step=1e-4,
                     limits={False:(-10, 0.), True:(0., 10.)}[vv>=0.], tag=kk))
 vary_all = []
 for kk in kq.keys():
     vary_all += vary_kq[kk]
+for kk in kq.keys():
+    vary_all += vary_ks[kk]
+
+tar_mu = xt.TargetSet(at=xt.END,mux=env['muxu'], muy=env['muyu'])
+tar_bet = xt.Target(lambda tw: tw.rows['qf.*']['betx'].std(), 0., tag='betx')
+tar_chrom = xt.TargetSet(dqx=0, dqy=0)
 
 opt_pant = line.match(
     solve=False,
     method='4d',
-    targets=[
-        xt.TargetSet(at=xt.END,
-                     mux=env['muxu'], muy=env['muyu']),
-        xt.Target(lambda tw: tw.rows['qf.*']['betx'].std(), 0.)
-    ],
+    targets=[tar_mu, tar_bet, tar_chrom],
     vary=vary_all,
 )
 opt = opt_pant
 
-# wipe all quads
+# wipe all quads and sextupoles
 for kk in opt_pant.get_knob_values(0).keys():
     env[kk] = 0.01 * np.sign(env[kk])
 
-
-opt_quads = opt_pant.clone()
+opt_quads = line.match(
+    solve=False,
+    method='4d',
+    vary=vary_kq['cell'],
+    targets=[tar_mu, tar_bet]
+)
 opt = opt_quads
 opt.step(10)
 opt._step_simplex(1000)
+
