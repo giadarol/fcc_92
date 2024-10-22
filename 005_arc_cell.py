@@ -55,6 +55,40 @@ opt_pant = line.match(
 )
 opt = opt_pant
 
+opt_pant_sext = line.match(
+    solve=False,
+    method='4d',
+    vary=vary_ks['cell'],
+    targets=[tar_mu, tar_bet]
+)
+
+
+
+# wipe all quads and sextupoles
+for kk in opt_pant.get_knob_values(0).keys():
+    env[kk] = 0.01 * np.sign(env[kk])
+
+opt_quads = line.match(
+    solve=False,
+    method='4d',
+    vary=vary_kq['cell'],
+    targets=[tar_mu, tar_bet]
+)
+opt = opt_quads
+opt.step(10)
+opt._step_simplex(1000)
+
+# Match chromaticity
+opt_chrom = line.match(
+    solve=False,
+    method='4d',
+    vary=vary_ks['cell'],
+    targets=tar_chrom
+)
+opt = opt_chrom
+opt.step(20)
+tw_chrom = line.twiss4d(strengths=True)
+
 line_starfish = 3*120 * env['cell_u']
 
 # Put the fractional tune on 0.2
@@ -80,35 +114,41 @@ p_test = line_starfish.build_particles(
     nemitt_y=nemitt_y,
 )
 
-line_starfish.track(num_turns=6, particles=p_test, turn_by_turn_monitor=True,
-           with_progress=1)
-mon = line_starfish.record_last_track
+def starfish(plot=False):
+    line_starfish.track(num_turns=6, particles=p_test.copy(), turn_by_turn_monitor=True,
+            with_progress=1)
+    mon = line_starfish.record_last_track
 
-ncoord = tw_sf.get_normalized_coordinates(mon,
-                                          nemitt_x=nemitt_x, nemitt_y=nemitt_y)
+    ncoord = tw_sf.get_normalized_coordinates(mon,
+                                            nemitt_x=nemitt_x, nemitt_y=nemitt_y)
+    if plot:
+        import matplotlib.pyplot as plt
+        plt.figure(figsize=(6.4*1.8, 4.8))
+        plt.subplot(122)
+        plt.plot(ncoord.y_norm, ncoord.py_norm, '.')
+        plt.axis('equal')
+        plt.xlabel('y')
+        plt.ylabel('py')
+        plt.subplot(121)
+        plt.plot(ncoord.x_norm, ncoord.px_norm, '.')
+        plt.axis('equal')
+        plt.xlabel('x')
+        plt.ylabel('px')
 
+    out ={'n_coord': ncoord._data}
+
+    return out
+
+opt_pant_sext.tag('chrom_only')
 
 import matplotlib.pyplot as plt
 plt.close('all')
-plt.figure(1)
-plt.plot(ncoord.y_norm, ncoord.py_norm, '.')
-plt.axis('equal')
+starfish(plot=True)
+plt.suptitle('Only chromaticity correction')
+
+opt_pant_sext.reload(0)
+opt_pant_sext.step(10)
+starfish(plot=True)
+plt.suptitle("Pantaleo's solution")
+
 plt.show()
-
-prrrrr
-
-# wipe all quads and sextupoles
-for kk in opt_pant.get_knob_values(0).keys():
-    env[kk] = 0.01 * np.sign(env[kk])
-
-opt_quads = line.match(
-    solve=False,
-    method='4d',
-    vary=vary_kq['cell'],
-    targets=[tar_mu, tar_bet]
-)
-opt = opt_quads
-opt.step(10)
-opt._step_simplex(1000)
-
-# Match chromaticity
