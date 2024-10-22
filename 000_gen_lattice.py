@@ -35,6 +35,11 @@ for nn, el_params in elements.items():
 
     params, extras = get_params(el_params, parent=par)
     el_params = loader._pre_process_element_params(nn, params)
+
+    # PATCH!!!!
+    if par in ['sbend', 'rbend']:
+        el_params['k0_from_h'] = True
+
     ee_def_tokens = []
     ee_def_tokens.append(f"'{nn}'")
     ee_def_tokens.append(f"'{par}'")
