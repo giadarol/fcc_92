@@ -1,5 +1,6 @@
 import xtrack as xt
 env = xt.get_environment()
+env.particle_ref = xt.Particles(mass0=xt.ELECTRON_MASS_EV, energy0=45.6e9)
 
 env.new_line(name='cell_u', components=['qd1a', 'dr_01', 'dl1a', 'dr_01', 'qf2a', 'dr_01', 'sf2a', 'dr_01', 'dl2a', 'dr_01', 'sd1a', 'dr_01', 'qd3a', 'dr_01', 'dl2a', 'dr_01', 'sf1a', 'dr_01', 'qf4a', 'dr_01', 'dl2a', 'dr_01', 'sd2a', 'dr_01', 'qd5a', 'dr_01', 'dl3a', 'dr_01', 'qf6a', 'dr_01', 'dl3a', 'dr_01', 'qd5a', 'dr_01', 'sd2a', 'dr_01', 'dl2a', 'dr_01', 'qf4a', 'dr_01', 'sf1a', 'dr_01', 'dl2a', 'dr_01', 'qd3a', 'dr_01', 'sd1a', 'dr_01', 'dl2a', 'dr_01', 'sf2a', 'dr_01', 'qf2a', 'dr_01', 'dl1a', 'dr_01', 'qd1a'])
 env.new_line(name='cell_v', components=['qd1a', 'dr_01', 'dl1a', 'dr_01', 'qf2a', 'dr_01', 'sf4a', 'dr_01', 'dl2a', 'dr_01', 'sd3a', 'dr_01', 'qd3a', 'dr_01', 'dl2a', 'dr_01', 'sf3a', 'dr_01', 'qf4a', 'dr_01', 'dl2a', 'dr_01', 'sd4a', 'dr_01', 'qd5a', 'dr_01', 'dl3a', 'dr_01', 'qf6a', 'dr_01', 'dl3a', 'dr_01', 'qd5a', 'dr_01', 'sd4a', 'dr_01', 'dl2a', 'dr_01', 'qf4a', 'dr_01', 'sf3a', 'dr_01', 'dl2a', 'dr_01', 'qd3a', 'dr_01', 'sd3a', 'dr_01', 'dl2a', 'dr_01', 'sf4a', 'dr_01', 'qf2a', 'dr_01', 'dl1a', 'dr_01', 'qd1a'])
@@ -19,7 +20,6 @@ env.new_line(name='ccs_xl', components=[2*['scrabl'], 'lx0', 'qd20l', 'd8l', 'qf
 env.new_line(name='ccs_yl', components=['ipimag3', 'qf10l', 'lx0', 'b4lc', 'lx0', 'qd9l', 'lx0', 'b4lb', 'lx0', 'qf8l', 'lx0', 'b4la', 'lx0', 'qd7l', 'lx0', 4*['sdy2l'], 'decdl', 'lx0', 'qy1l', 'd3l', 'qy2l', 'd3l', 'qy3l', 'd4l', 'qy3l', 'lx0', 'b3l', 'lx0', 'qy4l', 'ipimag2', 'qy4l', 'lx0', 'b3l', 'lx0', 'qy3l', 'd4l', 'qy3l', 'd3l', 'qy2l', 'd3l', 'qy1l', 'lx0', 4*['sdy1l'], 'decdl', 'lx0', 'qd6l', 'lx0', 'b1lb', 'lx0', 'qf5l', 'lx0', 'b1la', 'lx0', 'qd4l', 'lx0', 2*['sdm1l'], 'oct1l', 'dec1l', 'lx0', 'b0l', 'lx0', 'qd2l', 'lx0', 'b0l', 'lx0', 'qf2l', 'lx0', 'bsl', 'lx0', 'qd1l', 'd2', 'oct0l', 'qf1bl', 'lx0', 'qf1al', 'd1', 'qd0bl', 'lx0', 'qd0al', 'd0', 'ip'])
 env.new_line(name='ccs_xr', components=[2*['scrabr'], 'lx0', 'qd20r', 'd8r', 'qf19r', 'd8r', 'qd18r', 'd8r', 'qf17r', 'd8r', 'qd16r', 'lx0', 'b7r', 'lx0', 'qf15r', 'lx0', 'b7r', 'lx0', 'qd14r', 'd7r', 'qf13r', 'lx0', 'decfr', 4*['sfx2r'], 'lx0', 'qx0r', 'd7r', 'qx1r', 'lx0', 'b6r', 'lx0', 'qx2r', 'ipimag4', 'qx2r', 'lx0', 'b6r', 'lx0', 'qx1r', 'd7r', 'qx0r', 'lx0', 4*['sfx1r'], 'decfr', 'lx0', 'qf12r', 'd7r', 'qd11r', 'lx0', 'b5rb', 'lx0', 'oct2r', 2*['sfm2r'], 'lx0'])
 env.new_line(name='ccs_yr', components=['ipimag3', 'qf10r', 'lx0', 'b5ra', 'lx0', 'qd9r', 'lx0', 'b4rb', 'lx0', 'qf8r', 'lx0', 'b4ra', 'lx0', 'qd7r', 'lx0', 4*['sdy2r'], 'decdr', 'lx0', 'qy1r', 'lx0', 'b3r', 'lx0', 'qy2r', 'lx0', 'b3r', 'lx0', 'qy3r', 'lx0', 'b3r', 'lx0', 'qy4r', 'ipimag2', 'qy4r', 'lx0', 'b3r', 'lx0', 'qy3r', 'lx0', 'b3r', 'lx0', 'qy2r', 'lx0', 'b3r', 'lx0', 'qy1r', 'lx0', 4*['sdy1r'], 'decdr', 'lx0', 'qd6r', 'lx0', 'b1rb', 'lx0', 'qf5r', 'lx0', 'b1ra', 'lx0', 'qd4r', 'lx0', 2*['sdm1r'], 'oct1r', 'dec1r', 'lx0', 'b0r', 'lx0', 'qd2r', 'lx0', 'bsr', 'lx0', 'qf2r', 'lx0', 'bsr', 'lx0', 'qd1r', 'd2r', 'oct0r', 'qf1br', 'lx0', 'qf1ar', 'd1', 'qd0br', 'lx0', 'qd0ar', 'd0', 'ip'])
-
 
 env['ffl'] = env['ccs_xl'] + env['ccs_yl']
 env['ffr'] = env['ccs_xr'] + env['ccs_yr']
@@ -47,19 +47,25 @@ env['arc_ufrflu'] = (env['cell_uffl'] + env['ffl']
 
 env['mffl'] = -env['ffl']
 env['mffr'] = -env['ffr']
-# env.new('arc_us', ['-straight_r,-cell_su,-cell_ur,arc_octant,cell_ul,cell_us,straight_l);
-# env.new('arc_sufl', ['-straight_l,-cell_us,-cell_ul,arc_octant,cell_l3,cell_uffl,ffl);
-# env.new('arc_sufr', ['-straight_r,-cell_su,-cell_ur,arc_octant,cell_r3,cell_uffr,ffr);
-# env.new('arc_sudsl', ['-straight_l,-cell_us,-cell_ul,arc_octant,cell_l3,cell_uffl);
-# env.new('arc_sudsr', ['-straight_r,-cell_su,-cell_ur,arc_octant,cell_r3,cell_uffr);
-# env.new('marc_sufl', ['-arc_sufl);
-# env.new('marc_sufr', ['-arc_sufr);
-# env.new('us_sector', ['arc_us,rfc,arc_us);
-# env.new('fcc_sector_ds', ['-arc_sudsr,rfc,arc_sudsl);
+env['arc_us'] = (-env['straight_r'] + -env['cell_su'] + -env['cell_ur']
+    + env['arc_octant'] + env['cell_ul'] + env['cell_us'] + env['straight_l'])
+env['arc_sufl'] = (-env['straight_l'] + -env['cell_us'] + -env['cell_ul']
+    + env['arc_octant'] + env['cell_l3'] + env['cell_uffl'] + env['ffl'])
+env['arc_sufr'] = (-env['straight_r'] + -env['cell_su'] + -env['cell_ur']
+    + env['arc_octant'] + env['cell_r3'] + env['cell_uffr'] + env['ffr'])
+env['arc_sudsl'] = (-env['straight_l'] + -env['cell_us'] + -env['cell_ul']
+    + env['arc_octant'] + env['cell_l3'] + env['cell_uffl'])
+env['arc_sudsr'] = (-env['straight_r'] + -env['cell_su'] + -env['cell_ur']
+    + env['arc_octant'] + env['cell_r3'] + env['cell_uffr'])
+env['marc_sufl'] = -env['arc_sufl']
+env['marc_sufr'] = -env['arc_sufr']
+env['us_sector'] = env['arc_us'] + ln_rfc + env['arc_us']
+env['fcc_sector_ds'] = (-env['arc_sudsr'] + ln_rfc + env['arc_sudsl'])
+env['fcc_sector'] = (-env['arc_sufr'] + env['arc_sufl'])
 # env.new('fcc_sector', ['-arc_sufr,arc_sufl);
 # env.new('fcc_sector_l', ['-arc_sufl,rfc,arc_sufl);
 # env.new('fcc_sector_r', ['-arc_sufr,rfc,arc_sufr);
 # env.new('ring_us', ['4*us_sector);
 # env.new('ring_us_ds', ['4*fcc_sector_ds);
-# env.new('ring_full', ['4*fcc_sector);
+env['ring_full'] = 4 * env['fcc_sector']
 # env.new('fccee_p_ring', ['ring_full);
