@@ -70,9 +70,9 @@ out_lattice = []
 out_lattice.append('import xtrack as xt')
 out_lattice.append('env = xt.get_environment()')
 out_lattice.append('env.vars.default_to_zero=True')
-out_lattice.append('')
 
 BASE_TYPE_DEFS = '''
+# Base types
 env.new("sbend", "Bend")
 env.new("rbend", "Bend", rbend=True)
 env.new("quadrupole", "Quadrupole")
