@@ -21,30 +21,68 @@ env.new_line(name='ccs_yl', components=['ipimag3', 'qf10l', 'lx0', 'b4lc', 'lx0'
 env.new_line(name='ccs_xr', components=[2*['scrabr'], 'lx0', 'qd20r', 'd8r', 'qf19r', 'd8r', 'qd18r', 'd8r', 'qf17r', 'd8r', 'qd16r', 'lx0', 'b7r', 'lx0', 'qf15r', 'lx0', 'b7r', 'lx0', 'qd14r', 'd7r', 'qf13r', 'lx0', 'decfr', 4*['sfx2r'], 'lx0', 'qx0r', 'd7r', 'qx1r', 'lx0', 'b6r', 'lx0', 'qx2r', 'ipimag4', 'qx2r', 'lx0', 'b6r', 'lx0', 'qx1r', 'd7r', 'qx0r', 'lx0', 4*['sfx1r'], 'decfr', 'lx0', 'qf12r', 'd7r', 'qd11r', 'lx0', 'b5rb', 'lx0', 'oct2r', 2*['sfm2r'], 'lx0'])
 env.new_line(name='ccs_yr', components=['ipimag3', 'qf10r', 'lx0', 'b5ra', 'lx0', 'qd9r', 'lx0', 'b4rb', 'lx0', 'qf8r', 'lx0', 'b4ra', 'lx0', 'qd7r', 'lx0', 4*['sdy2r'], 'decdr', 'lx0', 'qy1r', 'lx0', 'b3r', 'lx0', 'qy2r', 'lx0', 'b3r', 'lx0', 'qy3r', 'lx0', 'b3r', 'lx0', 'qy4r', 'ipimag2', 'qy4r', 'lx0', 'b3r', 'lx0', 'qy3r', 'lx0', 'b3r', 'lx0', 'qy2r', 'lx0', 'b3r', 'lx0', 'qy1r', 'lx0', 4*['sdy1r'], 'decdr', 'lx0', 'qd6r', 'lx0', 'b1rb', 'lx0', 'qf5r', 'lx0', 'b1ra', 'lx0', 'qd4r', 'lx0', 2*['sdm1r'], 'oct1r', 'dec1r', 'lx0', 'b0r', 'lx0', 'qd2r', 'lx0', 'bsr', 'lx0', 'qf2r', 'lx0', 'bsr', 'lx0', 'qd1r', 'd2r', 'oct0r', 'qf1br', 'lx0', 'qf1ar', 'd1', 'qd0br', 'lx0', 'qd0ar', 'd0', 'ip'])
 
+# Name convention:
+
+# - cell_u: arc cell
+# - cell_ul: same as cell_u with different sextupoles
+# - cell_ur: same as cell_u with different sextupoles
+# - cell_l3: same as cell_u with different sextupoles
+# - cell_r3: same as cell_u with different sextupoles
+
+# - cell_us: short curved cell on the left side of the service straight (dedicated quads)
+# - cell_su: short curved cell on the right side of the service straight (dedicated quads)
+# - cell_uffl: curved cell on the left side of the experimental insertion (dedicated quads)
+# - cell_uffr: curved cell on the right side of the experimental insertion (dedicated quads)
+
+# - ccs_yl: ip + triplet + vertical chromatic correction section for left side
+# - ccs_yr: ip + triplet + vertical chromatic correction section for right side
+# - ccs_xl: horizontal chromatic correction section for left side
+# - ccs_xr: horizontal chromatic correction section for right side
+
+# - straight_l: left side of the service straight
+# - straight_r: right side of the service straight
+
+# Note that l/r are for the service insertion are defined wrt the ip and not
+# wrt the center of the insertion
+
+# New ring definition (line called `fccee_p_ring`)
+
+env['arc_octant'] = 25 * env['cell_u']
+
 env['ffl'] = env['ccs_xl'] + env['ccs_yl']
 env['ffr'] = env['ccs_xr'] + env['ccs_yr']
+env['experimental_insertion_l'] =  (env['cell_l3'] + env['cell_uffl'] + env['ffl'])
+env['experimental_insertion_r'] = -(env['cell_r3'] + env['cell_uffr'] + env['ffr'])
 
+env['service_insertion_l'] = -(env['cell_ul'] + env['cell_us'] + env['straight_l'])
+env['service_insertion_r'] =  (env['cell_ur'] + env['cell_su'] + env['straight_r'])
+
+env['fcc_quarter'] = (env['experimental_insertion_r']
+                    + env['arc_octant']
+                    + env['service_insertion_r']
+                    + env['service_insertion_l']
+                    + env['arc_octant']
+                    + env['experimental_insertion_l'])
+
+env['fccee_p_ring'] = 4 * env['fcc_quarter']
+
+# Other lines used for matching
 env['mccs_yl'] = -env['ccs_yl']
 env['mccs_yxl'] = -env['ccs_yl'] + (-env['ccs_xl'])
 env['ccs_yxl'] = env['ccs_xl'] + env['ccs_yl']
 env['mccs_yr'] = -env['ccs_yr']
 env['mccs_yxr'] = -env['ccs_yr'] + (-env['ccs_xr'])
 env['ccs_yxr'] = env['ccs_xr'] + env['ccs_yr']
-
 env['fflr'] = env['ffl'] + (-env['ffr'])
-
 ln_rfc = env.new_line(components=['rfc'])
 env['ring_u'] = 8 * (28 * env['cell_u'] + ln_rfc)
-
 env['arc_uu'] = 2 * env['cell_u']
 env['arc_uv'] = 2 * env['cell_u'] + 2 * env['cell_v']
-env['arc_octant'] = 25 * env['cell_u']
+
 env['arc_ussu'] = (env['cell_us'] + env['straight_l']
                    + (-env['straight_r']) + (-env['cell_su']))
-
 env['arc_ufrflu'] = (env['cell_uffl'] + env['ffl']
                   + (-env['ffr']) + (-env['cell_uffr']))
-
 env['mffl'] = -env['ffl']
 env['mffr'] = -env['ffr']
 env['arc_us'] = (-env['straight_r'] + -env['cell_su'] + -env['cell_ur']
@@ -67,4 +105,9 @@ env['fcc_sector_r'] = (-env['arc_sufr'] + ln_rfc + env['arc_sufr'])
 env['ring_us'] = 4 * env['us_sector']
 env['ring_us_ds'] = 4 * env['fcc_sector_ds']
 env['ring_full'] = 4 * env['fcc_sector']
-env['fccee_p_ring'] = env['ring_full']
+
+# Check that the two rings are the same
+# for nn1, nn2, in zip(env['ring_full'].get_table().name[:],
+#                      env['fccee_p_ring'].get_table().name[:]):
+#     if nn1 != nn2:
+#         print(nn1, nn2)
