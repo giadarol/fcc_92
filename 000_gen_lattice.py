@@ -141,7 +141,7 @@ for nn in sorted(list(tt_other.name)):
 out_other.append('')
 out_other.append('env.vars.default_to_zero=False')
 
-with open('fccee_z.py', 'w') as fid:
+with open('fccee_z_elements.py', 'w') as fid:
     fid.write('\n'.join(out_lattice))
 
 with open('fccee_z_strengths.py', 'w') as fid:
