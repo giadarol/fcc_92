@@ -82,7 +82,6 @@ opt_pant = line.match(
     targets=[tar_sfm2r, tar_sfx1r, tar_rmat_sext, tar_imag4, tar_rmat_end, tar_end],
     vary=vary_all
 )
-prrrr
 
 import json
 with open('mccs_yr.json', 'r') as fid:
@@ -99,18 +98,20 @@ for kk in ['ksdy1r', 'ksdy2r', 'ksdm1r', 'ksdm1r', 'ksfm2r',
     env[kk] = 0.
 
 # Match ipimag3
-opt_ipimag3 = line.match(
+opt_sfm2r = line.match(
     name='imag3',
     solve=False,
     betx=env['bxip'],
     bety=env['byip'],
-    targets=tar_sfm2r,
-    vary=vary_kq['section_c'])
-opt = opt_ipimag3
+    targets=[tar_sfm2r,
+             xt.TargetSet(dx=xt.LessThan(0.45), at='qf10r')],
+    vary=vary_kq['section_c']
+)
+opt = opt_sfm2r
 opt.step(100)
 
 # March to sfx1
-opt_sfx1r = opt_ipimag3.clone(name='sfx1r_d',
+opt_sfx1r = opt_sfm2r.clone(name='sfx1r_d',
                               add_vary=vary_kq['section_d'],
                               add_targets=tar_sfx1r)
 opt = opt_sfx1r
@@ -120,6 +121,7 @@ opt_more_sfx1r = opt_sfx1r.clone(name='sfx1r_cd',
                            add_vary=vary_kq['section_c'])
 opt = opt_more_sfx1r
 opt.step(100)
+
 
 # Match r matrix alone
 opt_rsext = line.match(
@@ -162,8 +164,7 @@ opt = opt_imag4_with_qy
 opt.enable(True)
 opt.step(100)
 
-assert opt.targets[14].tag == 'ipimag4_dpx'
-opt.targets[14].weight = 1000
+opt.targets['ipimag4_dpx'].weight = 1000
 opt.step(100)
 
 # Try to close with downstream quadrupoles alone
@@ -191,6 +192,16 @@ opt.plot()
 # Refine with symplex
 opt_imag4_with_qy._step_simplex(1000)
 opt_end._step_simplex(1000)
+
+opt_full = opt_end.clone(
+    name='full',
+    add_targets=opt_imag4_with_qy.targets,
+    add_vary=opt_imag4_with_qy.vary
+)
+opt = opt_full
+opt.step(200)
+
+opt_full._step_simplex(1000)
 
 # Check that the closed twiss is still ok
 # env['ring_full'].twiss4d().plot()
