@@ -26,3 +26,12 @@ for kk in ['ksfx1l', 'ksdy1l', 'ksdm1l', 'ksfm2l']:
 tw_no_ip_sext = section.twiss(init=twinit_cell_1_r,
                     compute_chromatic_properties=True)
 
+opt1 = section.match(
+    solve=False,
+    init=twinit_cell_1_r,
+    compute_chromatic_properties=True,
+    vary=xt.VaryList(['ksfx1l', 'ksdy1l'], step=1e-4),
+    targets=xt.TargetSet(wx_chrom=0, wy_chrom=0, at='ip_mid')
+)
+opt = opt1
+opt.step(20)
