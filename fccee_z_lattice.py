@@ -21,6 +21,11 @@ env.new_line(name='ccs_yl', components=['ipimag3', 'qf10l', 'lx0', 'b4lc', 'lx0'
 env.new_line(name='ccs_xr', components=[2*['scrabr'], 'lx0', 'qd20r', 'd8r', 'qf19r', 'd8r', 'qd18r', 'd8r', 'qf17r', 'd8r', 'qd16r', 'lx0', 'b7r', 'lx0', 'qf15r', 'lx0', 'b7r', 'lx0', 'qd14r', 'd7r', 'qf13r', 'lx0', 'decfr', 4*['sfx2r'], 'lx0', 'qx0r', 'd7r', 'qx1r', 'lx0', 'b6r', 'lx0', 'qx2r', 'ipimag4', 'qx2r', 'lx0', 'b6r', 'lx0', 'qx1r', 'd7r', 'qx0r', 'lx0', 4*['sfx1r'], 'decfr', 'lx0', 'qf12r', 'd7r', 'qd11r', 'lx0', 'b5rb', 'lx0', 'oct2r', 2*['sfm2r'], 'lx0'])
 env.new_line(name='ccs_yr', components=['ipimag3', 'qf10r', 'lx0', 'b5ra', 'lx0', 'qd9r', 'lx0', 'b4rb', 'lx0', 'qf8r', 'lx0', 'b4ra', 'lx0', 'qd7r', 'lx0', 4*['sdy2r'], 'decdr', 'lx0', 'qy1r', 'lx0', 'b3r', 'lx0', 'qy2r', 'lx0', 'b3r', 'lx0', 'qy3r', 'lx0', 'b3r', 'lx0', 'qy4r', 'ipimag2', 'qy4r', 'lx0', 'b3r', 'lx0', 'qy3r', 'lx0', 'b3r', 'lx0', 'qy2r', 'lx0', 'b3r', 'lx0', 'qy1r', 'lx0', 4*['sdy1r'], 'decdr', 'lx0', 'qd6r', 'lx0', 'b1rb', 'lx0', 'qf5r', 'lx0', 'b1ra', 'lx0', 'qd4r', 'lx0', 2*['sdm1r'], 'oct1r', 'dec1r', 'lx0', 'b0r', 'lx0', 'qd2r', 'lx0', 'bsr', 'lx0', 'qf2r', 'lx0', 'bsr', 'lx0', 'qd1r', 'd2r', 'oct0r', 'qf1br', 'lx0', 'qf1ar', 'd1', 'qd0br', 'lx0', 'qd0ar', 'd0', 'ip'])
 
+env.new_line(name='mark_e_ffl', components=[env.new('ff_edge_l', 'Marker')])
+env.new_line(name='mark_e_ffr', components=[env.new('ff_edge_r', 'Marker')])
+env.new_line(name='mark_mid_cell_l', components=[env.new('mid_cell_edge_l', 'Marker')])
+env.new_line(name='mark_mid_cell_r', components=[env.new('mid_cell_edge_r', 'Marker')])
+
 # Name convention:
 
 # - cell_u: arc cell
@@ -46,13 +51,16 @@ env.new_line(name='ccs_yr', components=['ipimag3', 'qf10r', 'lx0', 'b5ra', 'lx0'
 # wrt the center of the insertion
 
 # New ring definition (line called `fccee_p_ring`)
-
-env['arc_octant'] = 25 * env['cell_u']
+env['arc_octant'] = (12 * env['cell_u']
+                   + env['mark_mid_cell_l']
+                   + env['cell_u']
+                   + env['mark_mid_cell_r']
+                   + 12 * env['cell_u'])
 
 env['ffl'] = env['ccs_xl'] + env['ccs_yl']
 env['ffr'] = env['ccs_xr'] + env['ccs_yr']
-env['experimental_insertion_l'] =  (env['cell_l3'] + env['cell_uffl'] + env['ffl'])
-env['experimental_insertion_r'] = -(env['cell_r3'] + env['cell_uffr'] + env['ffr'])
+env['experimental_insertion_l'] =  (env['cell_l3'] + env['cell_uffl'] + env['mark_e_ffl'] + env['ffl'])
+env['experimental_insertion_r'] = -(env['cell_r3'] + env['cell_uffr'] + env['mark_e_ffr'] + env['ffr'])
 
 env['service_insertion_l'] = -(env['cell_ul'] + env['cell_us'] + env['straight_l'])
 env['service_insertion_r'] =  (env['cell_ur'] + env['cell_su'] + env['straight_r'])
