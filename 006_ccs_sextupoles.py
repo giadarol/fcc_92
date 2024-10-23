@@ -39,8 +39,36 @@ def twiss_off_momentum():
 
         tw_test.append(tt)
 
+    # Polynominal fit
+    n_order = 10
+    mux_l_test = np.array(mux_l_test)
+    muy_l_test = np.array(muy_l_test)
+    delta_test = np.array(delta_test)
+    p_mux = np.polyfit(delta_test, mux_l_test, n_order)
+    p_muy = np.polyfit(delta_test, muy_l_test, n_order)
+
+    mux_l_poly = np.polyval(p_mux, delta_test)
+    muy_l_poly = np.polyval(p_muy, delta_test)
+
+    # derivative in zero
+    dmux = p_mux[-2]
+    d2mux = 2*p_mux[-3]
+    d3mux = 6*p_mux[-4]
+    d4mux = 24*p_mux[-5]
+    d5mux = 120*p_mux[-6]
+    dmuy = p_muy[-2]
+    d2muy = 2*p_muy[-3]
+    d3muy = 6*p_muy[-4]
+    d4muy = 24*p_muy[-5]
+    d5muy = 120*p_muy[-6]
+
     out = dict(mux_l_test=mux_l_test, muy_l_test=muy_l_test,
-               tw_test=tw_test, delta_test=delta_test)
+               tw_test=tw_test, delta_test=delta_test,
+                p_mux=p_mux, p_muy=p_muy,
+                mux_l_poly=mux_l_poly, muy_l_poly=muy_l_poly,
+                dmux=dmux, d2mux=d2mux, d3mux=d3mux, d4mux=d4mux, d5mux=d5mux,
+                dmuy=dmuy, d2muy=d2muy, d3muy=d3muy, d4muy=d4muy, d5muy=d5muy,
+                )
 
     return out
 
