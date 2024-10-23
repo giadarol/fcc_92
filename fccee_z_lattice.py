@@ -1,5 +1,6 @@
 import xtrack as xt
 env = xt.get_environment()
+
 env.particle_ref = xt.Particles(mass0=xt.ELECTRON_MASS_EV, energy0=45.6e9)
 
 env.new_line(name='cell_u', components=['qd1a', 'dr_01', 'dl1a', 'dr_01', 'qf2a', 'dr_01', 'sf2a', 'dr_01', 'dl2a', 'dr_01', 'sd1a', 'dr_01', 'qd3a', 'dr_01', 'dl2a', 'dr_01', 'sf1a', 'dr_01', 'qf4a', 'dr_01', 'dl2a', 'dr_01', 'sd2a', 'dr_01', 'qd5a', 'dr_01', 'dl3a', 'dr_01', 'qf6a', 'dr_01', 'dl3a', 'dr_01', 'qd5a', 'dr_01', 'sd2a', 'dr_01', 'dl2a', 'dr_01', 'qf4a', 'dr_01', 'sf1a', 'dr_01', 'dl2a', 'dr_01', 'qd3a', 'dr_01', 'sd1a', 'dr_01', 'dl2a', 'dr_01', 'sf2a', 'dr_01', 'qf2a', 'dr_01', 'dl1a', 'dr_01', 'qd1a'])
@@ -25,6 +26,7 @@ env.new_line(name='mark_e_ffl', components=[env.new('ff_edge_l', 'Marker')])
 env.new_line(name='mark_e_ffr', components=[env.new('ff_edge_r', 'Marker')])
 env.new_line(name='mark_mid_cell_l', components=[env.new('mid_cell_edge_l', 'Marker')])
 env.new_line(name='mark_mid_cell_r', components=[env.new('mid_cell_edge_r', 'Marker')])
+env.new_line(name='mark_ip_mid', components=[env.new('ip_mid', 'Marker')])
 
 # Name convention:
 
@@ -65,7 +67,9 @@ env['experimental_insertion_r'] = -(env['cell_r3'] + env['cell_uffr'] + env['mar
 env['service_insertion_l'] = -(env['cell_ul'] + env['cell_us'] + env['straight_l'])
 env['service_insertion_r'] =  (env['cell_ur'] + env['cell_su'] + env['straight_r'])
 
-env['fcc_quarter'] = (env['experimental_insertion_r']
+env['fcc_quarter'] = (
+                      env['mark_ip_mid']
+                    + env['experimental_insertion_r']
                     + env['arc_octant']
                     + env['service_insertion_r']
                     + env['service_insertion_l']
