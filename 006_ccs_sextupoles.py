@@ -20,9 +20,9 @@ tw0 = section.twiss(init=twinit_cell_1_r,
                     compute_chromatic_properties=True)
 
 # wipe sextupoles
-for kk in ['ksdy1l', 'ksdy2l', 'ksdm1l', 'ksdm1l', 'ksfm2l',
-           'ksfx1l', 'kcrabl']:
-    env[kk] = 0.
+for kk in ['ksfx1l', 'ksdy1l', 'ksdm1l', 'ksfm2l']:
+    env[kk] = 0.001 * np.sign(env[kk])
 
 tw_no_ip_sext = section.twiss(init=twinit_cell_1_r,
                     compute_chromatic_properties=True)
+
