@@ -21,6 +21,32 @@ twinit_cell_2_l = tw_cell_1.get_twiss_init('mid_cell_edge_l')
 tw0 = section.twiss(init=twinit_cell_1_r,
                     compute_chromatic_properties=True)
 
+
+def twiss_off_momentum():
+    delta_test = np.linspace(-0.03, 0.03, 21)
+    tw_test = []
+    mux_l_test = []
+    muy_l_test = []
+    tt_0 = section.twiss(init_at='ip_mid', betx=env['bxip'], bety=env['byip'])
+
+    for dd in delta_test:
+        tt = section.twiss(init_at='ip_mid', betx=env['bxip'], bety=env['byip'],
+                        delta=dd)
+        mux_l_test.append(tt['mux', 'ip_mid'] - tt['mux', 'ff_edge_l']
+                        -(tt_0['mux', 'ip_mid'] - tt_0['mux', 'ff_edge_l']))
+        muy_l_test.append(tt['muy', 'ip_mid'] - tt['muy', 'ff_edge_l']
+                        -(tt_0['muy', 'ip_mid'] - tt_0['muy', 'ff_edge_l']))
+
+        tw_test.append(tt)
+
+    out = dict(mux_l_test=mux_l_test, muy_l_test=muy_l_test,
+               tw_test=tw_test, delta_test=delta_test)
+
+    return out
+
+tw0_om = twiss_off_momentum()
+
+
 # wipe sextupoles
 for kk in ['ksfx1l', 'ksdy1l', 'ksdm1l', 'ksfm2l',
            'ksfx1r', 'ksdy1r', 'ksdm1r', 'ksfm2r',
@@ -52,3 +78,5 @@ opt_w_right = section.match(
 )
 opt = opt_w_right
 opt.step(20)
+
+tw_om = twiss_off_momentum()
