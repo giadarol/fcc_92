@@ -40,31 +40,32 @@ def twiss_off_momentum():
         tw_test.append(tt)
 
     # Polynominal fit
-    n_order = 10
+    n_order = 20
     mux_l_test = np.array(mux_l_test)
     muy_l_test = np.array(muy_l_test)
     delta_test = np.array(delta_test)
-    p_mux = np.polyfit(delta_test, mux_l_test, n_order)
-    p_muy = np.polyfit(delta_test, muy_l_test, n_order)
 
-    mux_l_poly = np.polyval(p_mux, delta_test)
-    muy_l_poly = np.polyval(p_muy, delta_test)
+    p_mux_l = np.polyfit(delta_test, mux_l_test, n_order)
+    p_muy_l = np.polyfit(delta_test, muy_l_test, n_order)
+
+    mux_l_poly = np.polyval(p_mux_l, delta_test)
+    muy_l_poly = np.polyval(p_muy_l, delta_test)
 
     # derivative in zero
-    dmux = p_mux[-2]
-    d2mux = 2*p_mux[-3]
-    d3mux = 6*p_mux[-4]
-    d4mux = 24*p_mux[-5]
-    d5mux = 120*p_mux[-6]
-    dmuy = p_muy[-2]
-    d2muy = 2*p_muy[-3]
-    d3muy = 6*p_muy[-4]
-    d4muy = 24*p_muy[-5]
-    d5muy = 120*p_muy[-6]
+    dmux = p_mux_l[-2]
+    d2mux = 2*p_mux_l[-3]
+    d3mux = 6*p_mux_l[-4]
+    d4mux = 24*p_mux_l[-5]
+    d5mux = 120*p_mux_l[-6]
+    dmuy = p_muy_l[-2]
+    d2muy = 2*p_muy_l[-3]
+    d3muy = 6*p_muy_l[-4]
+    d4muy = 24*p_muy_l[-5]
+    d5muy = 120*p_muy_l[-6]
 
     out = dict(mux_l_test=mux_l_test, muy_l_test=muy_l_test,
                tw_test=tw_test, delta_test=delta_test,
-                p_mux=p_mux, p_muy=p_muy,
+                p_mux=p_mux_l, p_muy=p_muy_l,
                 mux_l_poly=mux_l_poly, muy_l_poly=muy_l_poly,
                 dmux=dmux, d2mux=d2mux, d3mux=d3mux, d4mux=d4mux, d5mux=d5mux,
                 dmuy=dmuy, d2muy=d2muy, d3muy=d3muy, d4muy=d4muy, d5muy=d5muy,
@@ -108,3 +109,27 @@ opt = opt_w_right
 opt.step(20)
 
 tw_om = twiss_off_momentum()
+
+class ActionOffMom(xt.Action):
+    def run(self):
+        tw_om = twiss_off_momentum()
+        return tw_om
+
+act = ActionOffMom()
+
+# Match third order chromaticity
+opt_chrom = section.match(
+    name='chrom',
+    solve=False,
+    init=twinit_cell_1_r,
+    compute_chromatic_properties=True,
+    vary=xt.VaryList(['ksdm1l', 'ksfm2l'], step=1e-4),
+    targets=[
+        act.target('d3mux', 0, tol=0.1),
+        act.target('d3muy', 0, tol=0.1),
+    ]
+)
+opt = opt_chrom
+opt.step(10)
+
+tw_corr_om = twiss_off_momentum()
