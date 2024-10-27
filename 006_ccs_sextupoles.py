@@ -28,80 +28,86 @@ tt0 = section.get_table(attr=True)
 tt0_quad = tt0.rows[tt0.element_type == 'Quadrupole']
 tt0_sext = tt0.rows[tt0.element_type == 'Sextupole']
 
-for kk in env.vars.get_table().rows['koct.*|kdec.*'].name:
+tt_mult_before = env.vars.get_table().rows['koct.*|kdec.*']
+
+for kk in tt_mult_before.name:
     env[kk] = 0.
 
 def twiss_off_momentum():
     delta_test = np.linspace(-0.015, 0.015, 21)
     tw_test = []
-    mux_l_test = []
-    muy_l_test = []
-    mux_r_test = []
-    muy_r_test = []
+    alfx_l_test = []
+    alfy_l_test = []
+    alfx_r_test = []
+    alfy_r_test = []
     tt_0 = section.twiss(init_at='ip_mid', betx=env['bxip'], bety=env['byip'])
 
     for dd in delta_test:
         tt = section.twiss(init_at='ip_mid', betx=env['bxip'], bety=env['byip'],
                         delta=dd)
-        mux_l_test.append(tt['mux', 'ip_mid'] - tt['mux', 'ff_edge_l']
-                        -(tt_0['mux', 'ip_mid'] - tt_0['mux', 'ff_edge_l']))
-        muy_l_test.append(tt['muy', 'ip_mid'] - tt['muy', 'ff_edge_l']
-                        -(tt_0['muy', 'ip_mid'] - tt_0['muy', 'ff_edge_l']))
-        mux_r_test.append(-tt['mux', 'ip_mid'] + tt['mux', 'ff_edge_r']
-                        -(-tt_0['mux', 'ip_mid'] + tt_0['mux', 'ff_edge_r']))
-        muy_r_test.append(-tt['muy', 'ip_mid'] + tt['muy', 'ff_edge_r']
-                        -(-tt_0['muy', 'ip_mid'] + tt_0['muy', 'ff_edge_r']))
+        # mux_l_test.append(tt['mux', 'ip_mid'] - tt['mux', 'ff_edge_l']
+        #                 -(tt_0['mux', 'ip_mid'] - tt_0['mux', 'ff_edge_l']))
+        # muy_l_test.append(tt['muy', 'ip_mid'] - tt['muy', 'ff_edge_l']
+        #                 -(tt_0['muy', 'ip_mid'] - tt_0['muy', 'ff_edge_l']))
+        # mux_r_test.append(-tt['mux', 'ip_mid'] + tt['mux', 'ff_edge_r']
+        #                 -(-tt_0['mux', 'ip_mid'] + tt_0['mux', 'ff_edge_r']))
+        # muy_r_test.append(-tt['muy', 'ip_mid'] + tt['muy', 'ff_edge_r']
+        #                 -(-tt_0['muy', 'ip_mid'] + tt_0['muy', 'ff_edge_r']))
+        alfx_l_test.append(tt['alfx', 'ff_edge_l'])
+        alfy_l_test.append(tt['alfy', 'ff_edge_l'])
+        alfx_r_test.append(tt['alfx', 'ff_edge_r'])
+        alfy_r_test.append(tt['alfy', 'ff_edge_r'])
 
         tw_test.append(tt)
 
     # Polynominal fit
     n_order = 20
-    mux_l_test = np.array(mux_l_test)
-    muy_l_test = np.array(muy_l_test)
-    mux_r_test = np.array(mux_r_test)
-    muy_r_test = np.array(muy_r_test)
+    alfx_l_test = np.array(alfx_l_test)
+    alfy_l_test = np.array(alfy_l_test)
+    alfx_r_test = np.array(alfx_r_test)
+    alfy_r_test = np.array(alfy_r_test)
     delta_test = np.array(delta_test)
 
-    p_mux_l = np.polyfit(delta_test, mux_l_test, n_order)
-    p_muy_l = np.polyfit(delta_test, muy_l_test, n_order)
-    p_mux_r = np.polyfit(delta_test, mux_r_test, n_order)
-    p_muy_r = np.polyfit(delta_test, muy_r_test, n_order)
+    p_alfx_l = np.polyfit(delta_test, alfx_l_test, n_order)
+    p_alfy_l = np.polyfit(delta_test, alfy_l_test, n_order)
+    p_alfx_r = np.polyfit(delta_test, alfx_r_test, n_order)
+    p_alfy_r = np.polyfit(delta_test, alfy_r_test, n_order)
 
-    mux_l_poly = np.polyval(p_mux_l, delta_test)
-    muy_l_poly = np.polyval(p_muy_l, delta_test)
-    mux_r_poly = np.polyval(p_mux_r, delta_test)
-    muy_r_poly = np.polyval(p_muy_r, delta_test)
+    alfx_l_poly = np.polyval(p_alfx_l, delta_test)
+    alfy_l_poly = np.polyval(p_alfy_l, delta_test)
+    alfx_r_poly = np.polyval(p_alfx_r, delta_test)
+    alfy_r_poly = np.polyval(p_alfy_r, delta_test)
 
     # derivatives in zero
-    dmux_l = p_mux_l[-2]
-    d2mux_l = 2*p_mux_l[-3]
-    d3mux_l = 6*p_mux_l[-4]
-    d4mux_l = 24*p_mux_l[-5]
-    d5mux_l = 120*p_mux_l[-6]
-    dmuy_l = p_muy_l[-2]
-    d2muy_l = 2*p_muy_l[-3]
-    d3muy_l = 6*p_muy_l[-4]
-    d4muy_l = 24*p_muy_l[-5]
-    d5muy_l = 120*p_muy_l[-6]
+    dalfx_l = p_alfx_l[-2]
+    d2alfx_l = 2*p_alfx_l[-3]
+    d3alfx_l = 6*p_alfx_l[-4]
+    d4alfx_l = 24*p_alfx_l[-5]
+    d5alfx_l = 120*p_alfx_l[-6]
+    dalfy_l = p_alfy_l[-2]
+    d2alfy_l = 2*p_alfy_l[-3]
+    d3alfy_l = 6*p_alfy_l[-4]
+    d4alfy_l = 24*p_alfy_l[-5]
+    d5alfy_l = 120*p_alfy_l[-6]
 
-    dmux_r = p_mux_r[-2]
-    d2mux_r = 2*p_mux_r[-3]
-    d3mux_r = 6*p_mux_r[-4]
-    d4mux_r = 24*p_mux_r[-5]
-    d5mux_r = 120*p_mux_r[-6]
-    dmuy_r = p_muy_r[-2]
-    d2muy_r = 2*p_muy_r[-3]
-    d3muy_r = 6*p_muy_r[-4]
-    d4muy_r = 24*p_muy_r[-5]
-    d5muy_r = 120*p_muy_r[-6]
-    out = dict(mux_l_test=mux_l_test, muy_l_test=muy_l_test, mux_r_test=mux_r_test, muy_r_test=muy_r_test,
+    dalfx_r = p_alfx_r[-2]
+    d2alfx_r = 2*p_alfx_r[-3]
+    d3alfx_r = 6*p_alfx_r[-4]
+    d4alfx_r = 24*p_alfx_r[-5]
+    d5alfx_r = 120*p_alfx_r[-6]
+    dalfy_r = p_alfy_r[-2]
+    d2alfy_r = 2*p_alfy_r[-3]
+    d3alfy_r = 6*p_alfy_r[-4]
+    d4alfy_r = 24*p_alfy_r[-5]
+    d5alfy_r = 120*p_alfy_r[-6]
+    out = dict(alfx_l_test=alfx_l_test, alfy_l_test=alfy_l_test, alfx_r_test=alfx_r_test, alfy_r_test=alfy_r_test,
                tw_test=tw_test, delta_test=delta_test,
-                p_mux=p_mux_l, p_muy=p_muy_l, tt_0=tt_0,
-                mux_l_poly=mux_l_poly, muy_l_poly=muy_l_poly, mux_r_poly=mux_r_poly, muy_r_poly=muy_r_poly,
-                dmux_l=dmux_l, d2mux_l=d2mux_l, d3mux_l=d3mux_l, d4mux_l=d4mux_l, d5mux_l=d5mux_l,
-                dmuy_l=dmuy_l, d2muy_l=d2muy_l, d3muy_l=d3muy_l, d4muy_l=d4muy_l, d5muy_l=d5muy_l,
-                dmux_r=dmux_r, d2mux_r=d2mux_r, d3mux_r=d3mux_r, d4mux_r=d4mux_r, d5mux_r=d5mux_r,
-                dmuy_r=dmuy_r, d2muy_r=d2muy_r, d3muy_r=d3muy_r, d4muy_r=d4muy_r, d5muy_r=d5muy_r,
+                p_alfx=p_alfx_l, p_alfy=p_alfy_l, tt_0=tt_0,
+                alfx_l_poly=alfx_l_poly, alfy_l_poly=alfy_l_poly, alfx_r_poly=alfx_r_poly, alfy_r_poly=alfy_r_poly,
+                dalfx_l=dalfx_l, d2alfx_l=d2alfx_l, d3alfx_l=d3alfx_l, d4alfx_l=d4alfx_l, d5alfx_l=d5alfx_l,
+                dalfy_l=dalfy_l, d2alfy_l=d2alfy_l, d3alfy_l=d3alfy_l, d4alfy_l=d4alfy_l, d5alfy_l=d5alfy_l,
+                dalfx_r=dalfx_r, d2alfx_r=d2alfx_r, d3alfx_r=d3alfx_r, d4alfx_r=d4alfx_r, d5alfx_r=d5alfx_r,
+                dalfy_r=dalfy_r, d2alfy_r=d2alfy_r, d3alfy_r=d3alfy_r, d4alfy_r=d4alfy_r, d5alfy_r=d5alfy_r,
                 )
 
     return out
@@ -118,12 +124,12 @@ act = ActionOffMom()
 tar_w_left = xt.TargetSet(wx_chrom=0, wy_chrom=0, at='ip_mid')
 tar_w_right = xt.TargetSet(wx_chrom=0, wy_chrom=0, at='ip_mid')
 tar_chrom3_left = [
-    act.target('d3mux_l', 0, tol=0.1),
-    act.target('d3muy_l', 0, tol=0.1),
+    act.target('d3alfx_l', 0, tol=0.1),
+    act.target('d3alfy_l', 0, tol=0.1),
 ]
 tar_chrom3_right = [
-    act.target('d3mux_r', 0, tol=0.1),
-    act.target('d3muy_r', 0, tol=0.1),
+    act.target('d3alfx_r', 0, tol=0.1),
+    act.target('d3alfy_r', 0, tol=0.1),
 ]
 tar_ddx_left = xt.TargetSet(ddx=0, ddpx=0, at='ip_mid')
 tar_ddx_right = xt.TargetSet(ddx=0, ddpx=0, at='ip_mid')
@@ -133,7 +139,7 @@ opt_pant_left = section.match(
     solve=False,
     init=twinit_cell_1_r,
     compute_chromatic_properties=True,
-    vary=xt.VaryList(['ksfx1l', 'ksdy1l', 'ksdm1l', 'ksfm2l'], step=1e-4),
+    vary=xt.VaryList(['ksfx1l', 'ksdy1l', 'ksdm1l', 'ksfm2l'], step=1e-3),
     targets=tar_w_left
 )
 
@@ -142,10 +148,9 @@ opt_pant_right = section.match(
     solve=False,
     init=twinit_cell_2_l,
     compute_chromatic_properties=True,
-    vary=xt.VaryList(['ksfx1r', 'ksdy1r', 'ksdm1r', 'ksfm2r'], step=1e-4),
+    vary=xt.VaryList(['ksfx1r', 'ksdy1r', 'ksdm1r', 'ksfm2r'], step=1e-3),
     targets=tar_w_right
 )
-
 
 
 # wipe sextupoles
@@ -162,7 +167,7 @@ opt_w_left = section.match(
     solve=False,
     init=twinit_cell_1_r,
     compute_chromatic_properties=True,
-    vary=xt.VaryList(['ksfx1l', 'ksdy1l'], step=1e-4),
+    vary=xt.VaryList(['ksfx1l', 'ksdy1l'], step=1e-3),
     targets=xt.TargetSet(wx_chrom=0, wy_chrom=0, at='ip_mid')
 )
 opt = opt_w_left
@@ -174,10 +179,27 @@ opt_w_right = section.match(
     solve=False,
     init=twinit_cell_2_l,
     compute_chromatic_properties=True,
-    vary=xt.VaryList(['ksfx1r', 'ksdy1r'], step=1e-4),
+    vary=xt.VaryList(['ksfx1r', 'ksdy1r'], step=1e-3),
     targets=xt.TargetSet(wx_chrom=0, wy_chrom=0, at='ip_mid')
 )
 opt = opt_w_right
+opt.step(20)
+
+opt_close_w = section.match(
+    name='close',
+    solve=False,
+    init=twinit_cell_1_r,
+    compute_chromatic_properties=True,
+    vary=xt.VaryList(['ksfx1l', 'ksdy1l', 'ksfx1r', 'ksdy1r'], step=1e-3),
+    targets=[xt.TargetSet(ax_chrom=twinit_cell_1_r.ax_chrom,
+                         ay_chrom=twinit_cell_1_r.ay_chrom,
+                         bx_chrom=twinit_cell_1_r.bx_chrom,
+                         by_chrom=twinit_cell_1_r.by_chrom,
+                         at=xt.END),
+            xt.TargetSet(wx_chrom=xt.LessThan(10), wy_chrom=xt.LessThan(10),
+                         at='ip_mid')]
+)
+opt = opt_close_w
 opt.step(20)
 
 tw_om = twiss_off_momentum()
@@ -190,10 +212,10 @@ opt_chrom3_left = section.match(
     solve=False,
     init=twinit_cell_1_r,
     compute_chromatic_properties=True,
-    vary=xt.VaryList(['ksdm1l', 'ksfm2l'], step=1e-4),
+    vary=xt.VaryList(['ksdm1l', 'ksfm2l'], step=1e-3),
     targets=[
-        act.target('d3mux_l', 0, tol=0.1),
-        act.target('d3muy_l', 0, tol=0.1),
+        act.target('d3alfx_l', 0, tol=0.1),
+        act.target('d3alfy_l', 0, tol=0.1),
     ]
 )
 opt = opt_chrom3_left
@@ -204,16 +226,18 @@ opt_chrom3_right = section.match(
     solve=False,
     init=twinit_cell_2_l,
     compute_chromatic_properties=True,
-    vary=xt.VaryList(['ksdm1r', 'ksfm2r'], step=1e-4),
+    vary=xt.VaryList(['ksdm1r', 'ksfm2r'], step=1.),
     targets=[
-        act.target('d3mux_r', 0, tol=0.1),
-        act.target('d3muy_r', 0, tol=0.1),
+        act.target('d3alfx_r', 0, tol=1),
+        act.target('d3alfy_r', 0, tol=1),
     ]
 )
 opt = opt_chrom3_right
 opt.step(10)
 
 tw_corr_om = twiss_off_momentum()
+
+
 
 # Inspect sextupoles in special arc cells
 sl_match = [
@@ -283,7 +307,7 @@ opt_ddx_left = section.match(
     init=twinit_cell_1_r,
     compute_chromatic_properties=True,
     vary=xt.VaryList(ddx_left_knobs, step=1e-4),
-    targets=xt.TargetSet(ddx=0, ddpx=-0.02, at='ip_mid')
+    targets=xt.TargetSet(ddx=0, ddpx=-0, at='ip_mid')
 )
 opt = opt_ddx_left
 opt.step(5)
@@ -295,10 +319,44 @@ opt_ddx_right = section.match(
     compute_chromatic_properties=True,
     vary=xt.VaryList(ddx_right_knobs, step=1e-4),
     targets=[
-        xt.TargetSet(ddx=0, ddpx=-0.02, at='ip_mid'),
+        xt.TargetSet(ddx=0, ddpx=0, at='ip_mid'),
         # xt.TargetSet(ddx=xt.GreaterThan(0), at='qdm2r'),
         # xt.TargetSet(ddx=xt.LessThan(3), at='qdm2r')
     ]
 )
 opt = opt_ddx_right
 opt.step(5)
+
+opt_close_w.clone(name='close_final').step(5)
+opt_chrom3_left.clone(name='chrom3_left_final').step(5)
+opt_chrom3_right.clone(name='chrom3_right_final').step(5)
+
+opt_chrom5_left = section.match(
+    name='chrom5_l',
+    solve=False,
+    init=twinit_cell_1_r,
+    compute_chromatic_properties=True,
+    vary=xt.VaryList(['kdec1l', 'kdecfl', 'kdecdl'], step=1.),
+    targets=[
+        act.target('d5alfx_l', 0, tol=1e6),
+        act.target('d5alfy_l', 0, tol=1e6),
+    ]
+)
+opt = opt_chrom5_left
+opt.step(10)
+
+opt_chrom5_right = section.match(
+    name='chrom5_r',
+    solve=False,
+    init=twinit_cell_2_l,
+    compute_chromatic_properties=True,
+    vary=xt.VaryList(['kdec1r', 'kdecfr', 'kdecdr'], step=1.),
+    targets=[
+        act.target('d5alfx_r', 0, tol=1e6),
+        act.target('d5alfy_r', 0, tol=1e6),
+    ]
+)
+opt = opt_chrom5_right
+opt.step(10)
+
+tw_om_final = twiss_off_momentum()
