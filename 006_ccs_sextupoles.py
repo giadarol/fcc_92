@@ -49,11 +49,11 @@ def twiss_off_momentum():
         mux_l_test.append(tt['mux', 'ip_mid'] - tt['mux', 'ff_edge_l']
                         -(tt_0['mux', 'ip_mid'] - tt_0['mux', 'ff_edge_l']))
         muy_l_test.append(tt['muy', 'ip_mid'] - tt['muy', 'ff_edge_l']
-                        -(tt_0['muy', 'ip_mid'] - tt_0['muy', 'ff_edge_l']))
+                        -(tt_0['muy', 'ip_mid'] - tt_0['muy', 'ccs_y_edge_l']))
         mux_r_test.append(-tt['mux', 'ip_mid'] + tt['mux', 'ff_edge_r']
                         -(-tt_0['mux', 'ip_mid'] + tt_0['mux', 'ff_edge_r']))
         muy_r_test.append(-tt['muy', 'ip_mid'] + tt['muy', 'ff_edge_r']
-                        -(-tt_0['muy', 'ip_mid'] + tt_0['muy', 'ff_edge_r']))
+                        -(-tt_0['muy', 'ip_mid'] + tt_0['muy', 'ccs_y_edge_r']))
         # mux_l_test.append(tt['mux', 'ff_edge_l'])
         # muy_l_test.append(tt['muy', 'ff_edge_l'])
         # mux_r_test.append(tt['mux', 'ff_edge_r'])
@@ -101,9 +101,12 @@ def twiss_off_momentum():
     d3muy_r = 6*p_muy_r[-4]
     d4muy_r = 24*p_muy_r[-5]
     d5muy_r = 120*p_muy_r[-6]
+
+    muy_rms_l = muy_l_test.std()
     out = dict(mux_l_test=mux_l_test, muy_l_test=muy_l_test, mux_r_test=mux_r_test, muy_r_test=muy_r_test,
                tw_test=tw_test, delta_test=delta_test,
                 p_mux=p_mux_l, p_muy=p_muy_l, tt_0=tt_0,
+                muy_rms_l=muy_rms_l,
                 mux_l_poly=mux_l_poly, muy_l_poly=muy_l_poly, mux_r_poly=mux_r_poly, muy_r_poly=muy_r_poly,
                 dmux_l=dmux_l, d2mux_l=d2mux_l, d3mux_l=d3mux_l, d4mux_l=d4mux_l, d5mux_l=d5mux_l,
                 dmuy_l=dmuy_l, d2muy_l=d2muy_l, d3muy_l=d3muy_l, d4muy_l=d4muy_l, d5muy_l=d5muy_l,
@@ -206,20 +209,23 @@ opt.step(20)
 tw_om = twiss_off_momentum()
 
 
-
 # Match third order chromaticity
 opt_chrom3_left = section.match(
     name='chrom_l',
     solve=False,
     init=twinit_cell_1_r,
     compute_chromatic_properties=True,
-    vary=xt.VaryList(['ksdm1l', 'ksfm2l'], step=1e-3),
+    # vary=xt.VaryList(['ksdm1l', 'ksfm2l'], step=1e-3),
+    vary=xt.VaryList(['ksdm1l'], step=1e-3),
     targets=[
-        act.target('d3mux_l', 0, tol=0.1),
-        act.target('d3muy_l', 0, tol=0.1),
+        # act.target('d3mux_l', 0, tol=0.1),
+        # act.target('d3muy_l', 0, tol=0.1),
+        act.target('muy_rms_l', 0, tol=0.1),
     ]
 )
 opt = opt_chrom3_left
+prrrr
+
 opt.step(10)
 
 opt_chrom3_right = section.match(
