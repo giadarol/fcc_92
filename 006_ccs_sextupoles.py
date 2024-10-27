@@ -49,11 +49,11 @@ def twiss_off_momentum():
         mux_l_test.append(tt['mux', 'ip_mid'] - tt['mux', 'ff_edge_l']
                         -(tt_0['mux', 'ip_mid'] - tt_0['mux', 'ff_edge_l']))
         muy_l_test.append(tt['muy', 'ip_mid'] - tt['muy', 'ff_edge_l']
-                        -(tt_0['muy', 'ip_mid'] - tt_0['muy', 'ccs_y_edge_l']))
+                        -(tt_0['muy', 'ip_mid'] - tt_0['muy', 'ff_edge_l']))
         mux_r_test.append(-tt['mux', 'ip_mid'] + tt['mux', 'ff_edge_r']
                         -(-tt_0['mux', 'ip_mid'] + tt_0['mux', 'ff_edge_r']))
         muy_r_test.append(-tt['muy', 'ip_mid'] + tt['muy', 'ff_edge_r']
-                        -(-tt_0['muy', 'ip_mid'] + tt_0['muy', 'ccs_y_edge_r']))
+                        -(-tt_0['muy', 'ip_mid'] + tt_0['muy', 'ff_edge_r']))
         # mux_l_test.append(tt['mux', 'ff_edge_l'])
         # muy_l_test.append(tt['muy', 'ff_edge_l'])
         # mux_r_test.append(tt['mux', 'ff_edge_r'])
@@ -102,11 +102,14 @@ def twiss_off_momentum():
     d4muy_r = 24*p_muy_r[-5]
     d5muy_r = 120*p_muy_r[-6]
 
+    mux_rms_l = mux_l_test.std()
     muy_rms_l = muy_l_test.std()
+    mux_rms_r = mux_r_test.std()
+    muy_rms_r = muy_r_test.std()
     out = dict(mux_l_test=mux_l_test, muy_l_test=muy_l_test, mux_r_test=mux_r_test, muy_r_test=muy_r_test,
                tw_test=tw_test, delta_test=delta_test,
                 p_mux=p_mux_l, p_muy=p_muy_l, tt_0=tt_0,
-                muy_rms_l=muy_rms_l,
+                mux_rms_l=mux_rms_l, muy_rms_l=muy_rms_l, mux_rms_r=mux_rms_r, muy_rms_r=muy_rms_r,
                 mux_l_poly=mux_l_poly, muy_l_poly=muy_l_poly, mux_r_poly=mux_r_poly, muy_r_poly=muy_r_poly,
                 dmux_l=dmux_l, d2mux_l=d2mux_l, d3mux_l=d3mux_l, d4mux_l=d4mux_l, d5mux_l=d5mux_l,
                 dmuy_l=dmuy_l, d2muy_l=d2muy_l, d3muy_l=d3muy_l, d4muy_l=d4muy_l, d5muy_l=d5muy_l,
@@ -208,39 +211,84 @@ opt.step(20)
 
 tw_om = twiss_off_momentum()
 
-
 # Match third order chromaticity
-opt_chrom3_left = section.match(
-    name='chrom_l',
+opt_chrom3_y_left = section.match(
+    name='chrom_l_y',
     solve=False,
-    init=twinit_cell_1_r,
-    compute_chromatic_properties=True,
-    # vary=xt.VaryList(['ksdm1l', 'ksfm2l'], step=1e-3),
-    vary=xt.VaryList(['ksdm1l'], step=1e-3),
+    vary=xt.VaryList(['ksdm1l'], step=1e-3, limits=[-0.5, 0.5]),
     targets=[
-        # act.target('d3mux_l', 0, tol=0.1),
-        # act.target('d3muy_l', 0, tol=0.1),
-        act.target('muy_rms_l', 0, tol=0.1),
+        act.target('dmuy_l', xt.LessThan(0.1), tol=0.01, weight=1e4, tag='dmuy_l'),
+        act.target('dmuy_l', xt.GreaterThan(-0.1), tol=0.01, weight=1e4, tag='dmux_l'),
+        act.target('d3muy_l', xt.LessThan(1e3), tol=1, weight=1, tag='d3muy_l'),
+        act.target('d3muy_l', xt.GreaterThan(-1e3), tol=1, weight=1, tag='d3muy_l'),
+        act.target('muy_rms_l', xt.LessThan(0.05), tol=0.1, weight=1e6, tag='muy_rms_l'),
     ]
 )
-opt = opt_chrom3_left
-prrrr
+opt = opt_chrom3_y_left
+opt.step(6)
 
-opt.step(10)
-
-opt_chrom3_right = section.match(
-    name='chrom_r',
+opt_chrom3_x_left = section.match(
+    name='chrom_l_x',
     solve=False,
-    init=twinit_cell_2_l,
-    compute_chromatic_properties=True,
-    vary=xt.VaryList(['ksdm1r', 'ksfm2r'], step=1.),
+    vary=xt.VaryList(['ksfm2l'], step=1e-3, limits=[-0.5, 0.5]),
     targets=[
-        act.target('d3mux_r', 0, tol=1),
-        act.target('d3muy_r', 0, tol=1),
+        act.target('dmux_l', xt.LessThan(0.1), tol=0.01, weight=1e4, tag='dmux_l'),
+        act.target('dmux_l', xt.GreaterThan(-0.1), tol=0.01, weight=1e4, tag='dmux_l'),
+        act.target('d3mux_l', xt.LessThan(1e3), tol=1, weight=1, tag='d3mux_l'),
+        act.target('d3mux_l', xt.GreaterThan(-1e3), tol=1, weight=1, tag='d3mux_l'),
+        act.target('mux_rms_l', xt.LessThan(0.05), tol=0.1, weight=1e6, tag='mux_rms_l'),
     ]
 )
-opt = opt_chrom3_right
-opt.step(10)
+opt = opt_chrom3_x_left
+opt.step(6)
+
+opt_chrom3_y_right = section.match(
+    name='chrom_r_y',
+    solve=False,
+    vary=xt.VaryList(['ksdm1r'], step=1e-3, limits=[-0.5, 0.5]),
+    targets=[
+        act.target('dmuy_r', xt.LessThan(0.1), tol=0.01, weight=1e4, tag='dmuy_r'),
+        act.target('dmuy_r', xt.GreaterThan(-0.1), tol=0.01, weight=1e4, tag='dmuy_r'),
+        act.target('d3muy_r', xt.LessThan(1e3), tol=1, weight=1, tag='d3muy_r'),
+        act.target('d3muy_r', xt.GreaterThan(-1e3), tol=1, weight=1, tag='d3muy_r'),
+        act.target('muy_rms_r', xt.LessThan(0.05), tol=0.1, weight=1e6, tag='muy_rms_r'),
+    ]
+)
+opt = opt_chrom3_y_right
+opt.step(6)
+
+opt_chrom3_x_right = section.match(
+    name='chrom_r_x',
+    solve=False,
+    vary=xt.VaryList(['ksfm2r'], step=1e-3, limits=[-0.5, 0.5]),
+    targets=[
+        act.target('dmux_r', xt.LessThan(0.1), tol=0.01, weight=1e4, tag='dmux_r'),
+        act.target('dmux_r', xt.GreaterThan(-0.1), tol=0.01, weight=1e4, tag='dmux_r'),
+        act.target('d3mux_r', xt.LessThan(1e3), tol=1, weight=1, tag='d3mux_r'),
+        act.target('d3mux_r', xt.GreaterThan(-1e3), tol=1, weight=1, tag='d3mux_r'),
+        act.target('mux_rms_r', xt.LessThan(0.05), tol=0.1, weight=1e6, tag='mux_rms_r'),
+    ]
+)
+opt = opt_chrom3_x_right
+opt.step(6)
+
+# prrrr
+
+# opt_chrom3_right = section.match(
+#     name='chrom_r',
+#     solve=False,
+#     init=twinit_cell_2_l,
+#     compute_chromatic_properties=True,
+#     vary=xt.VaryList(['ksdm1r', 'ksfm2r'], step=1.),
+#     targets=[
+#         act.target('d3mux_r', 0, tol=1),
+#         act.target('d3muy_r', 0, tol=1),
+#     ]
+# )
+# opt = opt_chrom3_right
+# opt.step(10)
+
+# prrrr
 
 tw_corr_om = twiss_off_momentum()
 
@@ -335,8 +383,10 @@ opt = opt_ddx_right
 opt.step(5)
 
 opt_close_w.clone(name='close_final').step(5)
-opt_chrom3_left.clone(name='chrom3_left_final').step(5)
-opt_chrom3_right.clone(name='chrom3_right_final').step(5)
+opt_chrom3_x_left.step(5)
+opt_chrom3_y_left.step(5)
+opt_chrom3_x_right.step(5)
+opt_chrom3_y_right.step(5)
 tw_om_chrom3 = twiss_off_momentum()
 
 opt_chrom5_left = section.match(
@@ -352,6 +402,8 @@ opt_chrom5_left = section.match(
 )
 opt = opt_chrom5_left
 opt.step(10)
+
+
 
 opt_chrom5_right = section.match(
     name='chrom5_r',
@@ -376,6 +428,7 @@ opt_dqxy = env['fccee_p_ring'].match(
 )
 opt = opt_dqxy
 opt.step(10)
+
 
 tw_om_final = twiss_off_momentum()
 # tw_vs_delta = line.get_non_linear_chromaticity(delta0_range=(-1e-2, 1e-2), num_delta=50)
