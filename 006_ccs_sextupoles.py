@@ -34,7 +34,7 @@ for kk in tt_mult_before.name:
     env[kk] = 0.
 
 def twiss_off_momentum():
-    delta_test = np.linspace(-0.015, 0.015, 21)
+    delta_test = np.linspace(-0.02, 0.02, 21)
     tw_test = []
     alfx_l_test = []
     alfy_l_test = []
@@ -330,6 +330,7 @@ opt.step(5)
 opt_close_w.clone(name='close_final').step(5)
 opt_chrom3_left.clone(name='chrom3_left_final').step(5)
 opt_chrom3_right.clone(name='chrom3_right_final').step(5)
+tw_om_chrom3 = twiss_off_momentum()
 
 opt_chrom5_left = section.match(
     name='chrom5_l',
@@ -360,3 +361,33 @@ opt = opt_chrom5_right
 opt.step(10)
 
 tw_om_final = twiss_off_momentum()
+
+import matplotlib.pyplot as plt
+plt.close('all')
+spx_l = plt.subplot(2, 2, 1)
+spx_r = plt.subplot(2, 2, 2)
+spy_l = plt.subplot(2, 2, 3)
+spy_r = plt.subplot(2, 2, 4)
+
+spx_l.plot(tw_om['delta_test'], tw_om['alfx_l_test'])
+spx_l.plot(tw_om['delta_test'], tw_om_chrom3['alfx_l_test'])
+spx_l.plot(tw_om['delta_test'], tw_om_final['alfx_l_test'])
+spx_l.plot(tw_om['delta_test'], tw0_om['alfx_l_test'], '--k')
+
+spx_r.plot(tw_om['delta_test'], tw_om['alfx_r_test'])
+spx_r.plot(tw_om['delta_test'], tw_om_chrom3['alfx_r_test'])
+spx_r.plot(tw_om['delta_test'], tw_om_final['alfx_r_test'])
+spx_r.plot(tw_om['delta_test'], tw0_om['alfx_r_test'], '--k')
+
+spy_l.plot(tw_om['delta_test'], tw_om['alfy_l_test'])
+spy_l.plot(tw_om['delta_test'], tw_om_chrom3['alfy_l_test'])
+spy_l.plot(tw_om['delta_test'], tw_om_final['alfy_l_test'])
+spy_l.plot(tw_om['delta_test'], tw0_om['alfy_l_test'], '--k')
+
+spy_r.plot(tw_om['delta_test'], tw_om['alfy_r_test'])
+spy_r.plot(tw_om['delta_test'], tw_om_chrom3['alfy_r_test'])
+spy_r.plot(tw_om['delta_test'], tw_om_final['alfy_r_test'])
+spy_r.plot(tw_om['delta_test'], tw0_om['alfy_r_test'], '--k')
+
+plt.show()
+
