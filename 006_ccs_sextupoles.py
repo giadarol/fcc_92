@@ -24,6 +24,7 @@ twinit_cell_2_l = tw_cell_1.get_twiss_init('mid_cell_edge_l')
 tw0 = section.twiss(init=twinit_cell_1_r,
                     compute_chromatic_properties=True,
                     strengths=True)
+tw0_vs_delta = line.get_non_linear_chromaticity(delta0_range=(-1e-2, 1e-2), num_delta=50)
 tt0 = section.get_table(attr=True)
 tt0_quad = tt0.rows[tt0.element_type == 'Quadrupole']
 tt0_sext = tt0.rows[tt0.element_type == 'Sextupole']
@@ -360,7 +361,18 @@ opt_chrom5_right = section.match(
 opt = opt_chrom5_right
 opt.step(10)
 
+# Try to match the chromaticities using the arc families
+opt_dqxy = env['fccee_p_ring'].match(
+    solve=False,
+    method='4d',
+    vary=xt.VaryList(['ksffam1', 'ksffam2', 'ksdfam1', 'ksdfam2'], step=1e-3),
+    targets=xt.TargetSet(dqx=0, dqy=0, tol=1e-3)
+)
+opt = opt_dqxy
+opt.step(10)
+
 tw_om_final = twiss_off_momentum()
+tw_vs_delta = line.get_non_linear_chromaticity(delta0_range=(-1e-2, 1e-2), num_delta=50)
 
 import matplotlib.pyplot as plt
 plt.close('all')
@@ -388,6 +400,9 @@ spy_r.plot(tw_om['delta_test'], tw_om['alfy_r_test'])
 spy_r.plot(tw_om['delta_test'], tw_om_chrom3['alfy_r_test'])
 spy_r.plot(tw_om['delta_test'], tw_om_final['alfy_r_test'])
 spy_r.plot(tw_om['delta_test'], tw0_om['alfy_r_test'], '--k')
+
+
+
 
 plt.show()
 
