@@ -134,7 +134,6 @@ opt.step(20)
 opt.enable(target=3)
 opt.step(20)
 
-
 opt_imag2_with_qy = opt_dsdy1l.clone(
     name='imag2_with_qy',
     add_vary=vary_kq['section_a'] + vary_kq['yquads'],

@@ -9,6 +9,8 @@ env.call('fccee_z_lattice.py')
 env.call('fccee_z_strengths.py')
 
 line = env['fccee_p_ring']
+line0 = line.copy()
+
 section = line.select('mid_cell_edge_r::1','mid_cell_edge_l::2')
 cell1 = line.select('mid_cell_edge_l::1','mid_cell_edge_r::1')
 cell2 = line.select('mid_cell_edge_l::2','mid_cell_edge_r::2')
@@ -34,8 +36,9 @@ tt_mult_before = env.vars.get_table().rows['koct.*|kdec.*']
 for kk in tt_mult_before.name:
     env[kk] = 0.
 
-def twiss_off_momentum():
-    delta_test = np.linspace(-0.02, 0.02, 21)
+def twiss_off_momentum(delta_range=(-0.02, 0.02), num_delta=21,
+                       edge_l='ff_edge_l', edge_r='ff_edge_r'):
+    delta_test = np.linspace(*delta_range, num_delta)
     tw_test = []
     mux_l_test = []
     muy_l_test = []
@@ -46,19 +49,14 @@ def twiss_off_momentum():
     for dd in delta_test:
         tt = section.twiss(init_at='ip_mid', betx=env['bxip'], bety=env['byip'],
                         delta=dd)
-        mux_l_test.append(tt['mux', 'ip_mid'] - tt['mux', 'ff_edge_l']
-                        -(tt_0['mux', 'ip_mid'] - tt_0['mux', 'ff_edge_l']))
-        muy_l_test.append(tt['muy', 'ip_mid'] - tt['muy', 'ff_edge_l']
-                        -(tt_0['muy', 'ip_mid'] - tt_0['muy', 'ff_edge_l']))
-        mux_r_test.append(-tt['mux', 'ip_mid'] + tt['mux', 'ff_edge_r']
-                        -(-tt_0['mux', 'ip_mid'] + tt_0['mux', 'ff_edge_r']))
-        muy_r_test.append(-tt['muy', 'ip_mid'] + tt['muy', 'ff_edge_r']
-                        -(-tt_0['muy', 'ip_mid'] + tt_0['muy', 'ff_edge_r']))
-        # mux_l_test.append(tt['mux', 'ff_edge_l'])
-        # muy_l_test.append(tt['muy', 'ff_edge_l'])
-        # mux_r_test.append(tt['mux', 'ff_edge_r'])
-        # muy_r_test.append(tt['muy', 'ff_edge_r'])
-
+        mux_l_test.append(tt['mux', 'ip_mid'] - tt['mux', edge_l]
+                        -(tt_0['mux', 'ip_mid'] - tt_0['mux', edge_l]))
+        muy_l_test.append(tt['muy', 'ip_mid'] - tt['muy', edge_l]
+                        -(tt_0['muy', 'ip_mid'] - tt_0['muy', edge_l]))
+        mux_r_test.append(-tt['mux', 'ip_mid'] + tt['mux', edge_r]
+                        -(-tt_0['mux', 'ip_mid'] + tt_0['mux', edge_r]))
+        muy_r_test.append(-tt['muy', 'ip_mid'] + tt['muy', edge_r]
+                        -(-tt_0['muy', 'ip_mid'] + tt_0['muy', edge_r]))
         tw_test.append(tt)
 
     # Polynominal fit
@@ -120,6 +118,8 @@ def twiss_off_momentum():
     return out
 
 tw0_om = twiss_off_momentum()
+tw0_om_full = twiss_off_momentum(delta_range=(-2e-2, 2e-2), num_delta=41,
+                                 edge_l=0,edge_r=-1)
 
 class ActionOffMom(xt.Action):
     def run(self):
@@ -213,7 +213,7 @@ tw_om = twiss_off_momentum()
 
 # Match third order chromaticity
 opt_chrom3_y_left = section.match(
-    name='chrom_l_y',
+    name='chrom3_l_y',
     solve=False,
     vary=xt.VaryList(['ksdm1l'], step=1e-3, limits=[-0.5, 0.5]),
     targets=[
@@ -225,10 +225,11 @@ opt_chrom3_y_left = section.match(
     ]
 )
 opt = opt_chrom3_y_left
-opt.step(6)
+# opt.step(6)
+env['ksdm1l'] = line0['ksdm1l']
 
 opt_chrom3_x_left = section.match(
-    name='chrom_l_x',
+    name='chrom3_l_x',
     solve=False,
     vary=xt.VaryList(['ksfm2l'], step=1e-3, limits=[-0.5, 0.5]),
     targets=[
@@ -240,10 +241,11 @@ opt_chrom3_x_left = section.match(
     ]
 )
 opt = opt_chrom3_x_left
-opt.step(6)
+# opt.step(6)
+env['ksfm2l'] = line0['ksfm2l']
 
 opt_chrom3_y_right = section.match(
-    name='chrom_r_y',
+    name='chrom3_r_y',
     solve=False,
     vary=xt.VaryList(['ksdm1r'], step=1e-3, limits=[-0.5, 0.5]),
     targets=[
@@ -255,10 +257,14 @@ opt_chrom3_y_right = section.match(
     ]
 )
 opt = opt_chrom3_y_right
-opt.step(6)
+env['ksdm1r'] = line0['ksdm1r']
+# opt.step(6)
+# opt.disable(True)
+# opt.enable(target='d3muy_r')
+# opt.step(6)
 
 opt_chrom3_x_right = section.match(
-    name='chrom_r_x',
+    name='chrom3_r_x',
     solve=False,
     vary=xt.VaryList(['ksfm2r'], step=1e-3, limits=[-0.5, 0.5]),
     targets=[
@@ -270,29 +276,11 @@ opt_chrom3_x_right = section.match(
     ]
 )
 opt = opt_chrom3_x_right
-opt.step(6)
+# opt.step(6)
+env['ksfm2r'] = line0['ksfm2r']
 
-# prrrr
-
-# opt_chrom3_right = section.match(
-#     name='chrom_r',
-#     solve=False,
-#     init=twinit_cell_2_l,
-#     compute_chromatic_properties=True,
-#     vary=xt.VaryList(['ksdm1r', 'ksfm2r'], step=1.),
-#     targets=[
-#         act.target('d3mux_r', 0, tol=1),
-#         act.target('d3muy_r', 0, tol=1),
-#     ]
-# )
-# opt = opt_chrom3_right
-# opt.step(10)
-
-# prrrr
 
 tw_corr_om = twiss_off_momentum()
-
-
 
 # Inspect sextupoles in special arc cells
 sl_match = [
@@ -383,10 +371,10 @@ opt = opt_ddx_right
 opt.step(5)
 
 opt_close_w.clone(name='close_final').step(5)
-opt_chrom3_x_left.step(5)
-opt_chrom3_y_left.step(5)
-opt_chrom3_x_right.step(5)
-opt_chrom3_y_right.step(5)
+# opt_chrom3_y_left.step(5)
+# opt_chrom3_x_left.step(5)
+# opt_chrom3_y_right.step(5)
+# opt_chrom3_x_right.step(5)
 tw_om_chrom3 = twiss_off_momentum()
 
 opt_chrom5_left = section.match(
@@ -402,8 +390,6 @@ opt_chrom5_left = section.match(
 )
 opt = opt_chrom5_left
 opt.step(10)
-
-
 
 opt_chrom5_right = section.match(
     name='chrom5_r',
@@ -431,6 +417,9 @@ opt.step(10)
 
 
 tw_om_final = twiss_off_momentum()
+
+tw_om_final_full = twiss_off_momentum(delta_range=(-2e-2, 2e-2), num_delta=41,
+                                 edge_l=0,edge_r=-1)
 # tw_vs_delta = line.get_non_linear_chromaticity(delta0_range=(-1e-2, 1e-2), num_delta=50)
 
 import matplotlib.pyplot as plt
@@ -442,26 +431,45 @@ spy_r = plt.subplot(2, 2, 4)
 
 spx_l.plot(tw_om['delta_test'], tw_om['mux_l_test'])
 spx_l.plot(tw_om['delta_test'], tw_om_chrom3['mux_l_test'])
-spx_l.plot(tw_om['delta_test'], tw_om_final['mux_l_test'])
+spx_l.plot(tw_om_final['delta_test'], tw_om_final['mux_l_test'])
 spx_l.plot(tw_om['delta_test'], tw0_om['mux_l_test'], '--k')
 
 spx_r.plot(tw_om['delta_test'], tw_om['mux_r_test'])
 spx_r.plot(tw_om['delta_test'], tw_om_chrom3['mux_r_test'])
-spx_r.plot(tw_om['delta_test'], tw_om_final['mux_r_test'])
+spx_r.plot(tw_om_final['delta_test'], tw_om_final['mux_r_test'])
 spx_r.plot(tw_om['delta_test'], tw0_om['mux_r_test'], '--k')
 
 spy_l.plot(tw_om['delta_test'], tw_om['muy_l_test'])
 spy_l.plot(tw_om['delta_test'], tw_om_chrom3['muy_l_test'])
-spy_l.plot(tw_om['delta_test'], tw_om_final['muy_l_test'])
+spy_l.plot(tw_om_final['delta_test'], tw_om_final['muy_l_test'])
 spy_l.plot(tw_om['delta_test'], tw0_om['muy_l_test'], '--k')
 
 spy_r.plot(tw_om['delta_test'], tw_om['muy_r_test'])
 spy_r.plot(tw_om['delta_test'], tw_om_chrom3['muy_r_test'])
-spy_r.plot(tw_om['delta_test'], tw_om_final['muy_r_test'])
+spy_r.plot(tw_om_final['delta_test'], tw_om_final['muy_r_test'])
 spy_r.plot(tw_om['delta_test'], tw0_om['muy_r_test'], '--k')
 
+plt.figure(2)
+spx_l = plt.subplot(2, 2, 1)
+spx_r = plt.subplot(2, 2, 2)
+spy_l = plt.subplot(2, 2, 3)
+spy_r = plt.subplot(2, 2, 4)
 
+spx_l.plot(tw_om_final_full['delta_test'], tw_om_final_full['mux_l_test'])
+spx_l.plot(tw0_om_full['delta_test'], tw0_om_full['mux_l_test'], '--k')
 
+spx_r.plot(tw_om_final_full['delta_test'], tw_om_final_full['mux_r_test'])
+spx_r.plot(tw0_om_full['delta_test'], tw0_om_full['mux_r_test'], '--k')
+
+spy_l.plot(tw_om_final_full['delta_test'], tw_om_final_full['muy_l_test'])
+spy_l.plot(tw0_om_full['delta_test'], tw0_om_full['muy_l_test'], '--k')
+
+spy_r.plot(tw_om_final_full['delta_test'], tw_om_final_full['muy_r_test'])
+spy_r.plot(tw0_om_full['delta_test'], tw0_om_full['muy_r_test'], '--k')
+
+# Compare
+tw_ref = line0.twiss4d(delta0=1e-2)
+tw_test = line.twiss4d(delta0=1e-2)
 
 plt.show()
 
