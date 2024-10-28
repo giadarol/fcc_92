@@ -241,8 +241,8 @@ opt_chrom3_x_left = section.match(
     ]
 )
 opt = opt_chrom3_x_left
-# opt.step(6)
-env['ksfm2l'] = line0['ksfm2l']
+opt.step(6)
+# env['ksfm2l'] = line0['ksfm2l']
 
 opt_chrom3_y_right = section.match(
     name='chrom3_r_y',
@@ -276,8 +276,8 @@ opt_chrom3_x_right = section.match(
     ]
 )
 opt = opt_chrom3_x_right
-# opt.step(6)
-env['ksfm2r'] = line0['ksfm2r']
+opt.step(6)
+# env['ksfm2r'] = line0['ksfm2r']
 
 
 tw_corr_om = twiss_off_momentum()
