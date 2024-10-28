@@ -225,8 +225,8 @@ opt_chrom3_y_left = section.match(
     ]
 )
 opt = opt_chrom3_y_left
-# opt.step(6)
-env['ksdm1l'] = line0['ksdm1l']
+opt.step(6)
+# env['ksdm1l'] = line0['ksdm1l']
 
 opt_chrom3_x_left = section.match(
     name='chrom3_l_x',
