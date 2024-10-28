@@ -251,14 +251,20 @@ opt_chrom3_y_right = section.match(
     targets=[
         act.target('dmuy_r', xt.LessThan(0.1), tol=0.01, weight=1e4, tag='dmuy_r'),
         act.target('dmuy_r', xt.GreaterThan(-0.1), tol=0.01, weight=1e4, tag='dmuy_r'),
-        act.target('d3muy_r', xt.LessThan(1e3), tol=1, weight=1, tag='d3muy_r'),
-        act.target('d3muy_r', xt.GreaterThan(-1e3), tol=1, weight=1, tag='d3muy_r'),
+        act.target('d3muy_r', xt.LessThan(3100), tol=1, weight=1, tag='d3muy_r'),
+        act.target('d3muy_r', xt.GreaterThan(2500), tol=1, weight=1, tag='d3muy_r'),
         act.target('muy_rms_r', xt.LessThan(0.05), tol=0.1, weight=1e6, tag='muy_rms_r'),
     ]
 )
 opt = opt_chrom3_y_right
-env['ksdm1r'] = line0['ksdm1r']
-# opt.step(6)
+opt.disable(True)
+opt.enable(target='d3muy_r')
+fff = opt.get_merit_function(return_scalar=True)
+from scipy.optimize import brute
+oo = brute(fff, [(-0.5, 0)], full_output=True, finish=None)
+prrrr
+# env['ksdm1r'] = line0['ksdm1r']
+opt.step(6)
 # opt.disable(True)
 # opt.enable(target='d3muy_r')
 # opt.step(6)
