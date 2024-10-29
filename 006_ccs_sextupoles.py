@@ -249,20 +249,22 @@ opt_chrom3_y_right = section.match(
     solve=False,
     vary=xt.VaryList(['ksdm1r'], step=1e-3, limits=[-0.5, 0.5]),
     targets=[
-        act.target('dmuy_r', xt.LessThan(0.1), tol=0.01, weight=1e4, tag='dmuy_r'),
-        act.target('dmuy_r', xt.GreaterThan(-0.1), tol=0.01, weight=1e4, tag='dmuy_r'),
-        act.target('d3muy_r', xt.LessThan(3100), tol=1, weight=1, tag='d3muy_r'), ###????????????????
-        act.target('d3muy_r', xt.GreaterThan(2500), tol=1, weight=1, tag='d3muy_r'),
+        act.target('dmuy_r', xt.LessThan(1), tol=0.01, weight=1e4, tag='dmuy_r'),
+        act.target('dmuy_r', xt.GreaterThan(-1), tol=0.01, weight=1e4, tag='dmuy_r'),
+        act.target('d3muy_r', xt.LessThan(3e3), tol=1, weight=1, tag='d3muy_r'),     # For some reason this givea a better behaviour in the closed twiss
+        act.target('d3muy_r', xt.GreaterThan(-3e3), tol=1, weight=1, tag='d3muy_r'), # Allowing to go to delta 1.5e-2
         act.target('muy_rms_r', xt.LessThan(0.05), tol=0.1, weight=1e6, tag='muy_rms_r'),
     ]
 )
 opt = opt_chrom3_y_right
-opt.disable(True)
-opt.enable(target='d3muy_r')
-fff = opt.get_merit_function(return_scalar=True)
-from scipy.optimize import brute
-oo = brute(fff, [(-0.5, 0)], full_output=True, finish=None)
-fff.set_x(oo[0])
+opt.step(6)
+# opt.disable(True)
+# opt.enable(target='d3muy_r')
+# fff = opt.get_merit_function(return_scalar=True)
+# from scipy.optimize import brute
+# oo = brute(fff, [(-0.5, 0)], full_output=True, finish=None)
+# fff.set_x([oo[0]])
+# prrrr
 # env['ksdm1r'] = line0['ksdm1r']
 # opt.step(6)
 # opt.disable(True)
