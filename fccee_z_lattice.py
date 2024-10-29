@@ -29,6 +29,9 @@ env.new_line(name='mark_e_ffr', components=[env.new('ff_edge_r', 'Marker')])
 env.new_line(name='mark_mid_cell_l', components=[env.new('mid_cell_edge_l', 'Marker')])
 env.new_line(name='mark_mid_cell_r', components=[env.new('mid_cell_edge_r', 'Marker')])
 env.new_line(name='mark_ip_mid', components=[env.new('ip_mid', 'Marker')])
+env.new_line(name='mark_ser_ins_l', components=[env.new('serv_inser_edge_l', 'Marker')])
+env.new_line(name='mark_ser_ins_r', components=[env.new('serv_inser_edge_r', 'Marker')])
+env.new_line(name='mark_ser_ins_mid', components=[env.new('serv_inser_mid', 'Marker')])
 
 # Name convention:
 
@@ -73,8 +76,11 @@ env['fcc_quarter'] = (
                       env['mark_ip_mid']
                     + env['experimental_insertion_r']
                     + env['arc_octant']
+                    + env['mark_ser_ins_r']
                     + env['service_insertion_r']
+                    + env['mark_ser_ins_mid']
                     + env['service_insertion_l']
+                    + env['mark_ser_ins_l']
                     + env['arc_octant']
                     + env['experimental_insertion_l'])
 
