@@ -100,7 +100,8 @@ opt_close_w = section.match(
     init=twinit_cell_0_r,
     compute_chromatic_properties=True,
     vary=xt.VaryList(left_knobs + right_knobs, step=1e-4),
-    targets=[xt.TargetSet(
+    targets=[
+        xt.TargetSet(
                 ax_chrom=twinit_cell_0_r.ax_chrom,
                 ay_chrom=twinit_cell_0_r.ay_chrom,
                 bx_chrom=twinit_cell_0_r.bx_chrom,
@@ -108,7 +109,8 @@ opt_close_w = section.match(
                 ddx=twinit_cell_0_r.ddx,
                 ddpx=twinit_cell_0_r.ddpx,
                 at=xt.END),
-    ]
+        xt.TargetSet(wx_chrom=xt.LessThan(3.), wy_chrom=xt.LessThan(4.),
+                     at='serv_inser_mid')]
 )
 opt = opt_close_w
 opt.step(10)
