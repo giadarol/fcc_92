@@ -62,8 +62,6 @@ opt_pant_sext = line.match(
     targets=[tar_mu, tar_bet]
 )
 
-
-
 # wipe all quads and sextupoles
 for kk in opt_pant.get_knob_values(0).keys():
     env[kk] = 0.01 * np.sign(env[kk])
@@ -209,3 +207,10 @@ sf0 = starfish(plot=True)
 plt.suptitle("Pantaleo's solution")
 
 plt.show()
+
+import json
+with open('strengths_quads_00_arc_cell_quad.json', 'w') as fid:
+    json.dump(opt_quads.get_knob_values(-1), fid, indent=1)
+
+with open('strengths_sext_00_arc_cell_sext.json', 'w') as fid:
+    json.dump(opt_starfish.get_knob_values(-1), fid, indent=1)
