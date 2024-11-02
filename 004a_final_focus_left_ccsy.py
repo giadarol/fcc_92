@@ -174,3 +174,5 @@ import json
 with open('mccs_yl.json', 'w') as fid:
     json.dump(opt_pant.get_knob_values(-1), fid)
 
+with open('strengths_quads_01_ffccsyl.json', 'w') as fid:
+    json.dump(opt_pant.get_knob_values(-1), fid)

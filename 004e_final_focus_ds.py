@@ -76,6 +76,18 @@ opt.step(50)
 opt._step_simplex(1000)
 opt.step(50)
 
+# Other side is symmetric
+env['kqfm0r'] = 'kqfm0l'
+env['kqdm0r'] = 'kqdm0l'
+env['kqfm1r'] = 'kqfm1l'
+env['kqdm2r'] = 'kqdm2l'
+env['kqfm3r'] = 'kqfm3l'
+env['kqdm4r'] = 'kqdm4l'
+env['kqfm5r'] = 'kqfm5l'
+env['kqdm6r'] = 'kqdm6l'
+env['kqfm7r'] = 'kqfm7l'
+env['kqdm8r'] = 'kqdm8l'
+
 import matplotlib.pyplot as plt
 plt.close('all')
 opt.plot()
