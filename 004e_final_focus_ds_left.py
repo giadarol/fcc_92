@@ -75,3 +75,7 @@ opt._step_simplex(1000)
 opt.step(50)
 opt._step_simplex(1000)
 opt.step(50)
+
+import matplotlib.pyplot as plt
+plt.close('all')
+opt.plot()
