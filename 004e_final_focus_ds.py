@@ -75,19 +75,3 @@ opt._step_simplex(1000)
 opt.step(50)
 opt._step_simplex(1000)
 opt.step(50)
-
-opt.disable(target='q.*')
-
-# for bety_at_qfm5l in range(50, 500, 1):
-#     opt_shape_bety = opt_end.clone(
-#         add_targets=[
-#             xt.TargetSet(bety=xt.GreaterThan(bety_at_qfm5l), at='qfm5l'),
-#             xt.TargetSet(bety=xt.LessThan(600), at='qdm6l'),
-#         ],
-#     )
-#     opt = opt_shape_bety
-#     opt.step(50)
-#     if opt.log().penalty[-1] > 1e-6:
-#         opt._step_simplex(1000, xatol=1e-7, fatol=1e-7)
-#         opt.tag('simplex')
-#     opt.target_status()
