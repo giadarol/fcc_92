@@ -57,9 +57,11 @@ tar_bet = [
    xt.TargetSet(at='qdl3a::0', bety=xt.LessThan(env['bymax'])),
    xt.TargetSet(at='qdl4a::0', bety=xt.LessThan(env['bymax'])),
    xt.TargetSet(at='qdl5a::0', bety=xt.LessThan(env['bymax'])),
-   xt.TargetSet(at='qdl5a::0', bety=xt.LessThan(env['bymax']))
+   xt.TargetSet(at='qdl5a::2', bety=xt.LessThan(env['bymax']))
 ]
-tar_center = xt.TargetSet(at='scenter::0', betx=env['bxsc'], bety=env['bysc'], dx=0)
+tar_center = xt.TargetSet(at='scenter::0', betx=env['bxsc'], bety=env['bysc'],
+                          alfx=0, alfy=0,
+                          dx=0, dpx=0)
 
 tar_end = xt.TargetSet(at=xt.END,
     betx=tw_uu.betx[0], bety=tw_uu.bety[0], alfx=0, alfy=0,
@@ -76,3 +78,38 @@ opt_pant = line.match(
     dx=tw_uu.dx[0], dpx=tw_uu.dpx[0],
     targets=tar_bet + [tar_center, tar_end],
 )
+
+# wipe all quads
+for kk in opt_pant.get_knob_values(0).keys():
+    env[kk] = 0.001 * np.sign(env[kk])
+
+opt_ss = opt_pant.clone(
+    add_targets=[
+        xt.TargetSet(at='qdl1a::0', dx=0, dpx=0, weight=10000),
+        xt.TargetSet(at='qfl2a::0', dx=0, dpx=0, weight=10000),
+    ]
+    )
+opt = opt_ss
+
+opt.step(20)
+opt._step_simplex(1000)
+opt.step(20)
+opt._step_simplex(1000)
+opt.step(50)
+opt._step_simplex(1000)
+opt.step(50)
+opt._step_simplex(10000)
+
+opt.targets['END_mux'].weight = 1000
+opt.targets['END_muy'].weight = 1000
+opt.step(50)
+opt._step_simplex(1000)
+opt.step(50)
+opt._step_simplex(1000)
+opt.step(50)
+opt._step_simplex(10000)
+
+opt_pant.tag('gianni')
+import json
+with open('strengths_quads_06_straight.json', 'w') as fid:
+    json.dump(opt_pant.get_knob_values(-1), fid, indent=1)
