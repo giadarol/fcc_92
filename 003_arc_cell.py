@@ -44,9 +44,10 @@ for kk in kq.keys():
     vary_all += vary_ks[kk]
 
 tar_mu = xt.TargetSet(at=xt.END,mux=env['muxu'], muy=env['muyu'])
-tar_betx = xt.Target(lambda tw: tw.rows['qf.*']['betx'].std(), xt.LessThan(0.5), tag='betx')
+tar_dx = xt.Target(lambda tw: tw.rows['qf.*']['dx'].std(), xt.LessThan(0.001), tag='dx', weight=1000)
+tar_betx = xt.Target(lambda tw: tw.rows['qf.*']['betx'].std(), xt.LessThan(0.1), tag='betx')
 tar_bety = xt.Target(lambda tw: tw.rows[['qd3a::0', 'qd5a::0', 'qd5a::1', 'qd3a::1','qd1a::1']]['bety'].std(), 
-                     xt.LessThan(0.5), tag='bety')
+                     xt.LessThan(0.1), tag='bety')
 tar_chrom = xt.TargetSet(dqx=tw0.dqx, dqy=tw0.dqy)
 
 opt_pant = line.match(
@@ -73,11 +74,14 @@ opt_quads = line.match(
     solve=False,
     method='4d',
     vary=vary_kq['cell'],
-    targets=[tar_mu, tar_betx, tar_bety]
+    targets=[tar_mu, tar_betx, tar_bety, tar_dx]
 )
 opt = opt_quads
 opt.step(10)
 opt._step_simplex(100)
+opt.step(20)
+opt._step_simplex(100, xatol=1e-8, fatol=1e-10)
+opt.disable(target='bet.*')
 opt.step(20)
 
 import json
