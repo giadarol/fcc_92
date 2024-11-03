@@ -205,5 +205,6 @@ opt_full._step_simplex(1000)
 
 # Check that the closed twiss is still ok
 # env['ring_full'].twiss4d().plot()
+opt_pant.tag('gianni')
 with open('strengths_quads_04_ffccsxr.json', 'w') as fid:
     json.dump(opt_pant.get_knob_values(-1), fid, indent=1)

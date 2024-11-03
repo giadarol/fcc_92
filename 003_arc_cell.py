@@ -76,6 +76,10 @@ opt = opt_quads
 opt.step(10)
 opt._step_simplex(1000)
 
+import json
+with open('strengths_quads_00_arc_cell_quad.json', 'w') as fid:
+    json.dump(opt_quads.get_knob_values(-1), fid)
+
 # Match chromaticity
 opt_chrom = line.match(
     solve=False,
@@ -191,6 +195,9 @@ opt_starfish = line.match(
 opt = opt_starfish
 opt.step(10)
 
+with open('strengths_sext_00_arc_cell.json', 'w') as fid:
+    json.dump(opt_starfish.get_knob_values(-1), fid)
+
 import matplotlib.pyplot as plt
 plt.close('all')
 opt_starfish.reload(-1)
@@ -207,10 +214,3 @@ sf0 = starfish(plot=True)
 plt.suptitle("Pantaleo's solution")
 
 plt.show()
-
-import json
-with open('strengths_quads_00_arc_cell_quad.json', 'w') as fid:
-    json.dump(opt_quads.get_knob_values(-1), fid, indent=1)
-
-with open('strengths_sext_00_arc_cell_sext.json', 'w') as fid:
-    json.dump(opt_starfish.get_knob_values(-1), fid, indent=1)
