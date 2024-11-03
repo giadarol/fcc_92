@@ -191,23 +191,26 @@ opt_end = opt_imag4_with_qy.clone(
     add_vary=vary_kq['section_e'],
     add_targets=[tar_end,
                  xt.TargetSet(dx=0, dpx=0, at='qf17l'), # to prevent dx going wild in the straight
+                 xt.TargetSet(bety=xt.LessThan(2000), at='qf17l'),
+                 xt.TargetSet(bety=xt.LessThan(2000), at='qd18l'),
+                 xt.TargetSet(bety=xt.LessThan(2000), at='qf19l'),
+                 xt.TargetSet(bety=xt.LessThan(2000), at='qd20l'),
+                 xt.TargetSet(bety=xt.GreaterThan(750), at='qf19l'),
     ]
 )
 opt = opt_end
 
-opt.disable(target=True)
-opt.enable(target=['qf17l_dx', 'qf17l_dpx'])
-opt.step(100)
+opt.targets['END_dx'].weight = 100
+opt.targets['END_dpx'].weight = 100
 
-opt.enable(True)
-opt.disable(target='END_mu.*')
-opt.step(100)
+opt.step(5)
+opt._step_simplex(10000)
 
-opt.enable(target='END_mu.*')
-opt.targets['END_mux'].weight = 1000
-opt.targets['END_muy'].weight = 1000
-opt.targets['END_dpx'].weight = 1000
-opt.step(200)
+# from scipy.optimize import least_squares
+# fff = opt.get_merit_function()
+# bounds=fff.get_x_limits()
+# res = least_squares(fff, fff.get_x(), bounds=(bounds[:, 0], bounds[:, 1]),
+#                                               method='trf', verbose=1, ftol=1e-14, xtol=1e-14, gtol=1e-14)
 
 opt_full = opt_end.clone(
     name='full',
@@ -224,6 +227,9 @@ opt_full.target_mismatch(ret=True).show()
 
 tt = line.get_table(attr=True)
 tt_quad = tt.rows[tt.element_type == 'Quadrupole']
+
+with open('strengths_quads_02_ffccsxl.json', 'w') as fid:
+    json.dump(opt_pant.get_knob_values(-1), fid, indent=1)
 
 # Check that the closed twiss is still ok
 # env['ring_full'].twiss4d().plot()
