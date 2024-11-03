@@ -5,6 +5,7 @@ env = xt.Environment()
 env.call('fccee_z_parameters.py')
 env.call('fccee_z_elements.py')
 env.call('fccee_z_lattice.py')
+env.call('fccee_z_strengths.py')
 
 line = env['fccee_p_ring']
 
@@ -17,6 +18,21 @@ env.vars.load_json('strengths_quads_05_ffds_lr.json')
 
 tt = line.get_table(attr=True)
 
+twr = line.twiss(
+    start='ip_mid::1',
+    end='mid_cell_edge_r::2',
+    betx=env['bxip'],
+    bety=env['byip'],
+)
+
+twl = line.twiss(
+    start='mid_cell_edge_l::1',
+    end='ip_mid::1',
+    init_at='ip_mid::1',
+    betx=env['bxip'],
+    bety=env['byip'],
+)
+
 tw = line.twiss(
     start='mid_cell_edge_l::1',
     end='mid_cell_edge_r::2',
@@ -25,4 +41,9 @@ tw = line.twiss(
     bety=env['byip'],
 )
 
-
+import matplotlib.pyplot as plt
+plt.close('all')
+twl.plot()
+twr.plot()
+tw.plot()
+plt.show()
