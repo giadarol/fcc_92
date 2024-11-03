@@ -44,9 +44,9 @@ for kk in kq.keys():
     vary_all += vary_ks[kk]
 
 tar_mu = xt.TargetSet(at=xt.END,mux=env['muxu'], muy=env['muyu'])
-tar_betx = xt.Target(lambda tw: tw.rows['qf.*']['betx'].std(), xt.LessThan(1), tag='betx')
+tar_betx = xt.Target(lambda tw: tw.rows['qf.*']['betx'].std(), xt.LessThan(0.5), tag='betx')
 tar_bety = xt.Target(lambda tw: tw.rows[['qd3a::0', 'qd5a::0', 'qd5a::1', 'qd3a::1','qd1a::1']]['bety'].std(), 
-                     xt.LessThan(1), tag='bety')
+                     xt.LessThan(0.5), tag='bety')
 tar_chrom = xt.TargetSet(dqx=tw0.dqx, dqy=tw0.dqy)
 
 opt_pant = line.match(

@@ -78,7 +78,6 @@ opt.step(50)
 opt._step_simplex(1000)
 opt.step(50)
 opt._step_simplex(1000)
-opt.step(50)
 
 # Other side is symmetric
 
