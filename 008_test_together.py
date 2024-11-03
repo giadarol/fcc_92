@@ -9,7 +9,7 @@ env.call('fccee_z_strengths.py')
 
 line = env['fccee_p_ring']
 
-env.vars.load_json('strengths_quads_00_arc_cell_quad.json')
+env.vars.load_json('strengths_quads_00_arc_cell.json')
 env.vars.load_json('strengths_quads_01_ffccsyl.json')
 env.vars.load_json('strengths_quads_02_ffccsxl.json')
 env.vars.load_json('strengths_quads_03_ffccsyr.json')

@@ -13,6 +13,9 @@ env.call('fccee_z_elements.py')
 env.call('fccee_z_lattice.py')
 env.call('fccee_z_strengths.py')
 
+# Load cell strengths from my match
+env.vars.load_json('strengths_quads_00_arc_cell.json')
+
 line = env['cell_uffl']
 
 tt0 = line.get_table(attr=True)

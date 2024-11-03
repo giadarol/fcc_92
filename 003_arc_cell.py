@@ -77,7 +77,7 @@ opt.step(10)
 opt._step_simplex(1000)
 
 import json
-with open('strengths_quads_00_arc_cell_quad.json', 'w') as fid:
+with open('strengths_quads_00_arc_cell.json', 'w') as fid:
     json.dump(opt_quads.get_knob_values(-1), fid)
 
 # Match chromaticity
