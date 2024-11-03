@@ -77,6 +77,10 @@ opt._step_simplex(1000)
 opt.step(50)
 
 # Other side is symmetric
+
+kq_right = ['kqfm0r', 'kqdm0r', 'kqfm1r', 'kqdm2r', 'kqfm3r',
+            'kqdm4r', 'kqfm5r', 'kqdm6r', 'kqfm7r', 'kqdm8r']
+
 env['kqfm0r'] = 'kqfm0l'
 env['kqdm0r'] = 'kqdm0l'
 env['kqfm1r'] = 'kqfm1l'
@@ -87,6 +91,16 @@ env['kqfm5r'] = 'kqfm5l'
 env['kqdm6r'] = 'kqdm6l'
 env['kqfm7r'] = 'kqfm7l'
 env['kqdm8r'] = 'kqdm8l'
+
+tt_kqright = line.vars.get_table().rows[kq_right]
+
+import json
+out = {}
+out.update(opt_pant.get_knob_values())
+out.update(tt_kqright.to_dict())
+
+with open('strengths_quads_05_ffds_lr.json', 'w') as fid:
+    json.dump(out, fid, indent=1)
 
 import matplotlib.pyplot as plt
 plt.close('all')

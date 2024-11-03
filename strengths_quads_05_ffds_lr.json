@@ -1,0 +1,22 @@
+{
+ "kqfm0l": 0.013588325386,
+ "kqdm0l": -0.01937984987,
+ "kqfm1l": 0.015475092029,
+ "kqdm2l": -0.020688101847,
+ "kqfm3l": 0.019108786325,
+ "kqdm4l": -0.00556668879007,
+ "kqfm5l": 0.00820418385918,
+ "kqdm6l": -0.00955984668902,
+ "kqfm7l": 0.030807104489,
+ "kqdm8l": -0.022235189745,
+ "kqfm0r": "kqfm0l",
+ "kqdm0r": "kqdm0l",
+ "kqfm1r": "kqfm1l",
+ "kqdm2r": "kqdm2l",
+ "kqfm3r": "kqfm3l",
+ "kqdm4r": "kqdm4l",
+ "kqfm5r": "kqfm5l",
+ "kqdm6r": "kqdm6l",
+ "kqfm7r": "kqfm7l",
+ "kqdm8r": "kqdm8l"
+}
