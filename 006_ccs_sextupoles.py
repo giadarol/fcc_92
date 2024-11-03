@@ -6,7 +6,16 @@ env.particle_ref = xt.Particles(mass0=xt.ELECTRON_MASS_EV, energy0=45.6e9)
 env.call('fccee_z_parameters.py')
 env.call('fccee_z_elements.py')
 env.call('fccee_z_lattice.py')
-env.call('fccee_z_strengths.py')
+# env.call('fccee_z_strengths.py')
+
+env.vars.load_json('strengths_quads_00_arc_cell.json')
+env.vars.load_json('strengths_quads_01_ffccsyl.json')
+env.vars.load_json('strengths_quads_02_ffccsxl.json')
+env.vars.load_json('strengths_quads_03_ffccsyr.json')
+env.vars.load_json('strengths_quads_04_ffccsxr.json')
+env.vars.load_json('strengths_quads_05_ffds_lr.json')
+env.vars.load_json('strengths_quads_06_straight.json')
+env.vars.load_json('strengths_sext_00_arc_cell.json')
 
 line = env['fccee_p_ring']
 line0 = line.copy()
@@ -26,7 +35,7 @@ twinit_cell_2_l = tw_cell_1.get_twiss_init('mid_cell_edge_l')
 tw0 = section.twiss(init=twinit_cell_1_r,
                     compute_chromatic_properties=True,
                     strengths=True)
-tw0_vs_delta = line.get_non_linear_chromaticity(delta0_range=(-1e-2, 1e-2), num_delta=50)
+# tw0_vs_delta = line.get_non_linear_chromaticity(delta0_range=(-1e-2, 1e-2), num_delta=50)
 tt0 = section.get_table(attr=True)
 tt0_quad = tt0.rows[tt0.element_type == 'Quadrupole']
 tt0_sext = tt0.rows[tt0.element_type == 'Sextupole']
