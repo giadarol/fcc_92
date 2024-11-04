@@ -6,16 +6,16 @@ env.particle_ref = xt.Particles(mass0=xt.ELECTRON_MASS_EV, energy0=45.6e9)
 env.call('fccee_z_parameters.py')
 env.call('fccee_z_elements.py')
 env.call('fccee_z_lattice.py')
-env.call('fccee_z_strengths.py')
+# env.call('fccee_z_strengths.py')
 
-# env.vars.load_json('strengths_quads_00_arc_cell.json')
-# env.vars.load_json('strengths_quads_01_ffccsyl.json')
-# env.vars.load_json('strengths_quads_02_ffccsxl.json')
-# env.vars.load_json('strengths_quads_03_ffccsyr.json')
-# env.vars.load_json('strengths_quads_04_ffccsxr.json')
-# env.vars.load_json('strengths_quads_05_ffds_lr.json')
-# env.vars.load_json('strengths_quads_06_straight.json')
-# env.vars.load_json('strengths_sext_00_arc_cell.json')
+env.vars.load_json('strengths_quads_00_arc_cell.json')
+env.vars.load_json('strengths_quads_01_ffccsyl.json')
+env.vars.load_json('strengths_quads_02_ffccsxl.json')
+env.vars.load_json('strengths_quads_03_ffccsyr.json')
+env.vars.load_json('strengths_quads_04_ffccsxr.json')
+env.vars.load_json('strengths_quads_05_ffds_lr.json')
+env.vars.load_json('strengths_quads_06_straight.json')
+env.vars.load_json('strengths_sext_00_arc_cell.json')
 
 line = env['fccee_p_ring']
 line0 = line.copy()
@@ -473,14 +473,14 @@ spy_l.plot(tw0_om_full['delta_test'], tw0_om_full['muy_l_test'], '--k')
 spy_r.plot(tw_om_final_full['delta_test'], tw_om_final_full['muy_r_test'])
 spy_r.plot(tw0_om_full['delta_test'], tw0_om_full['muy_r_test'], '--k')
 
-# Compare
-tw_ref = line0.twiss4d(delta0=1e-2)
-tw_test = line.twiss4d(delta0=1e-2)
+# # Compare
+# tw_ref = line0.twiss4d(delta0=1e-2)
+# tw_test = line.twiss4d(delta0=1e-2)
 
-tw_ref.plot('wx_chrom wy_chrom')
-plt.suptitle('Reference')
-tw_test.plot('wx_chrom wy_chrom')
-plt.suptitle('Test')
+# tw_ref.plot('wx_chrom wy_chrom')
+# plt.suptitle('Reference')
+# tw_test.plot('wx_chrom wy_chrom')
+# plt.suptitle('Test')
 
 plt.show()
 
