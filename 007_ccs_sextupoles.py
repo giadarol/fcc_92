@@ -22,7 +22,7 @@ env.vars.load_json('strengths_quads_02_ffccsxl.json')
 env.vars.load_json('strengths_quads_03_ffccsyr.json')
 env.vars.load_json('strengths_quads_04_ffccsxr.json')
 env.vars.load_json('strengths_quads_05_ffds_lr.json')
-# env.vars.load_json('strengths_quads_06_straight.json')
+env.vars.load_json('strengths_quads_06_straight.json')
 env.vars.load_json('strengths_sext_00_arc_cell.json')
 line = env['fccee_p_ring']
 
@@ -371,6 +371,10 @@ opt = opt_ddx_right
 opt.step(5)
 
 opt = opt_close_w.clone(name='close_final').step(5)
+
+# Test
+# opt.disable(target='ip.*')
+# opt.step(5)
 
 
 # opt_chrom3_y_left.step(5)
