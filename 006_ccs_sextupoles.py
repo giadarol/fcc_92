@@ -6,16 +6,16 @@ env.particle_ref = xt.Particles(mass0=xt.ELECTRON_MASS_EV, energy0=45.6e9)
 env.call('fccee_z_parameters.py')
 env.call('fccee_z_elements.py')
 env.call('fccee_z_lattice.py')
-# env.call('fccee_z_strengths.py')
+env.call('fccee_z_strengths.py')
 
-env.vars.load_json('strengths_quads_00_arc_cell.json')
-env.vars.load_json('strengths_quads_01_ffccsyl.json')
-env.vars.load_json('strengths_quads_02_ffccsxl.json')
-env.vars.load_json('strengths_quads_03_ffccsyr.json')
-env.vars.load_json('strengths_quads_04_ffccsxr.json')
-env.vars.load_json('strengths_quads_05_ffds_lr.json')
-env.vars.load_json('strengths_quads_06_straight.json')
-env.vars.load_json('strengths_sext_00_arc_cell.json')
+# env.vars.load_json('strengths_quads_00_arc_cell.json')
+# env.vars.load_json('strengths_quads_01_ffccsyl.json')
+# env.vars.load_json('strengths_quads_02_ffccsxl.json')
+# env.vars.load_json('strengths_quads_03_ffccsyr.json')
+# env.vars.load_json('strengths_quads_04_ffccsxr.json')
+# env.vars.load_json('strengths_quads_05_ffds_lr.json')
+# env.vars.load_json('strengths_quads_06_straight.json')
+# env.vars.load_json('strengths_sext_00_arc_cell.json')
 
 line = env['fccee_p_ring']
 line0 = line.copy()
@@ -169,11 +169,42 @@ opt_pant_right = section.match(
 )
 
 
-# wipe sextupoles
+# wipe ff sextupoles
 for kk in ['ksfx1l', 'ksdy1l', 'ksdm1l', 'ksfm2l',
            'ksfx1r', 'ksdy1r', 'ksdm1r', 'ksfm2r',
            ]:
     env[kk] = 0.001 * np.sign(env[kk])
+
+
+# # Define circuits in special cells
+env.vars.default_to_zero = True
+env['ksf2al3'] = 'ksffam2 + ksf2al3_delta'
+env['ksf1al3'] = 'ksffam1 + ksf1al3_delta'
+env['ksf1al3'] = 'ksffam1'
+env['ksd2al3'] = 'ksdfam2'
+env['ksd2bl3'] = 'ksdfam2'
+env['ksf1bl3'] = 'ksffam1 + ksf1bl3_delta'
+env['ksd1bl3'] = 'ksdfam1'
+env['ksf2bl3'] = 'ksffam2 + ksf2bl3_delta'
+env['ksf2fl']  = 'ksffam2 + ksf2fl_delta'
+env['ksd1fl']  = 'ksdfam1'
+env['ksf1fl']  = 'ksffam1 + ksf1fl_delta'
+env['ksd2fl']  = 0.
+env['ksf3fl']  = 0.
+env['ksf3fr']  = 0.
+env['ksd2fr']  = 0.
+env['ksf1fr']  = 'ksffam1 + ksf1fr_delta'
+env['ksf2fr']  = 'ksffam2 + ksf2fr_delta'
+env['ksf2fr']  = 'ksffam2'
+env['ksf2br3'] = 'ksffam2 + ksf2br3_delta'
+env['ksd1br3'] = 'ksdfam1'
+env['ksf1br3'] = 'ksffam1 + ksf1br3_delta'
+env['ksd2br3'] = 'ksdfam2'
+env['ksd2ar3'] = 'ksdfam2'
+env['ksf1ar3'] = 'ksffam1'
+env['ksf1ar3'] = 'ksffam1 + ksf1ar3_delta'
+env['ksf2ar3'] = 'ksffam2 + ksf2ar3_delta'
+env.vars.default_to_zero = True
 
 tw_no_ip_sext = section.twiss(init=twinit_cell_1_r,
                     compute_chromatic_properties=True)
@@ -314,48 +345,6 @@ for ss in sl_match:
     ee = env[ss].get_expr('k2')
     print(ss, ee, ee._expr)
 
-# sf2al3 vars['ksf2al3'] (vars['ksffam2'] + 0.012)
-# sd1al3 vars['ksd1al3'] vars['ksdfam1']
-# sf1al3 vars['ksf1al3'] ((vars['ksffam1'] + 0.012) + 0.0)
-# sd2al3 vars['ksd2al3'] (vars['ksdfam2'] + 0.0)
-# sd2bl3 vars['ksd2bl3'] (vars['ksdfam2'] + 0.0)
-# sf1bl3 vars['ksf1bl3'] (vars['ksffam1'] - 0.012)
-# sd1bl3 vars['ksd1bl3'] (vars['ksdfam1'] - 0.0)
-# sf2bl3 vars['ksf2bl3'] ((vars['ksffam2'] - 0.012) - 0.0)
-# sf2afl vars['ksf2fl'] (vars['ksffam2'] * 0.6)
-# sd1afl vars['ksd1fl'] (vars['ksdfam1'] - 0.0)
-# sf1afl vars['ksf1fl'] (vars['ksffam1'] * 0.6)
-# sd2afl vars['ksd2fl'] (vars['ksdfam2'] * 0.0)
-# sf3afl vars['ksf3fl'] None
-# sf3afr vars['ksf3fr'] None
-# sd2afr vars['ksd2fr'] (vars['ksdfam2'] * 0.0)
-# sf1afr vars['ksf1fr'] (vars['ksffam1'] * 0.6)
-# sd1afr vars['ksd1fr'] (vars['ksdfam1'] - 0.0)
-# sf2afr vars['ksf2fr'] (vars['ksffam2'] * 0.6)
-# sf2br3 vars['ksf2br3'] ((vars['ksffam2'] - 0.012) + 0.0)
-# sd1br3 vars['ksd1br3'] (vars['ksdfam1'] - 0.0)
-# sf1br3 vars['ksf1br3'] (vars['ksffam1'] - 0.012)
-# sd2br3 vars['ksd2br3'] (vars['ksdfam2'] + 0.0)
-# sd2ar3 vars['ksd2ar3'] (vars['ksdfam2'] + 0.0)
-# sf1ar3 vars['ksf1ar3'] ((vars['ksffam1'] + 0.012) - 0.0)
-# sd1ar3 vars['ksd1ar3'] vars['ksdfam1']
-# sf2ar3 vars['ksf2ar3'] (vars['ksffam2'] + 0.012)
-
-env.vars.default_to_zero = True
-env['ksf2al3'] = 'ksffam2 + ksf2al3_delta'
-env['ksf1al3'] = 'ksffam1 + ksf1al3_delta'
-env['ksf1bl3'] = 'ksffam1 + ksf1bl3_delta'
-env['ksf2bl3'] = 'ksffam2 + ksf2bl3_delta'
-env['ksf2fl']  = 'ksffam2 + ksf2fl_delta'
-env['ksf1fl']  = 'ksffam1 + ksf1fl_delta'
-env['ksf1fr']  = 'ksffam1 + ksf1fr_delta'
-env['ksf2fr']  = 'ksffam2 + ksf2fr_delta'
-env['ksf2br3'] = 'ksffam2 + ksf2br3_delta'
-env['ksf1br3'] = 'ksffam1 + ksf1br3_delta'
-env['ksf1ar3'] = 'ksffam1 + ksf1ar3_delta'
-env['ksf2ar3'] = 'ksffam2 + ksf2ar3_delta'
-env.vars.default_to_zero = False
-
 ddx_left_knobs = ['ksf2al3_delta', 'ksf1al3_delta', 'ksf1bl3_delta',
                   'ksf2bl3_delta', 'ksf2fl_delta', 'ksf1fl_delta']
 ddx_right_knobs = ['ksf1fr_delta', 'ksf2fr_delta', 'ksf2br3_delta',
@@ -487,6 +476,11 @@ spy_r.plot(tw0_om_full['delta_test'], tw0_om_full['muy_r_test'], '--k')
 # Compare
 tw_ref = line0.twiss4d(delta0=1e-2)
 tw_test = line.twiss4d(delta0=1e-2)
+
+tw_ref.plot('wx_chrom wy_chrom')
+plt.suptitle('Reference')
+tw_test.plot('wx_chrom wy_chrom')
+plt.suptitle('Test')
 
 plt.show()
 

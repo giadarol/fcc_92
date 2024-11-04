@@ -70,6 +70,16 @@ opt_pant_sext = line.match(
 for kk in opt_pant.get_knob_values(0).keys():
     env[kk] = 0.01 * np.sign(env[kk])
 
+# Redefine sextupole circuits
+env['ksf1'] = 'ksffam1'
+env['ksf2'] = 'ksffam2'
+env['ksf3'] = 'ksffam1'
+env['ksf4'] = 'ksffam2'
+env['ksd1'] = 'ksdfam1'
+env['ksd2'] = 'ksdfam2'
+env['ksd3'] = 'ksdfam1'
+env['ksd4'] = 'ksdfam2'
+
 opt_quads = line.match(
     solve=False,
     method='4d',
@@ -203,8 +213,14 @@ opt_starfish = line.match(
 opt = opt_starfish
 opt.step(10)
 
+out = {}
+sext_strengths = ['ksf1', 'ksf2', 'ksf3', 'ksf4',
+                  'ksd1', 'ksd2', 'ksd3', 'ksd4']
+out.update(env.vars.get_table().rows[sext_strengths].to_dict())
+out.update(opt_starfish.get_knob_values(-1))
+
 with open('strengths_sext_00_arc_cell.json', 'w') as fid:
-    json.dump(opt_starfish.get_knob_values(-1), fid)
+    json.dump(out, fid, indent=2)
 
 import matplotlib.pyplot as plt
 plt.close('all')
