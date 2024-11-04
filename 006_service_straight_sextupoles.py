@@ -1,14 +1,27 @@
 import xtrack as xt
 
-env = xt.Environment()
 
+
+env = xt.Environment()
+env.particle_ref = xt.Particles(mass0=xt.ELECTRON_MASS_EV, energy0=45.6e9)
 env.call('fccee_z_parameters.py')
 env.call('fccee_z_elements.py')
 env.call('fccee_z_lattice.py')
+
+# Pantaleo
 env.call('fccee_z_strengths.py')
 
+# Gianni
+# env.vars.load_json('strengths_quads_00_arc_cell.json')
+# env.vars.load_json('strengths_quads_01_ffccsyl.json')
+# env.vars.load_json('strengths_quads_02_ffccsxl.json')
+# env.vars.load_json('strengths_quads_03_ffccsyr.json')
+# env.vars.load_json('strengths_quads_04_ffccsxr.json')
+# env.vars.load_json('strengths_quads_05_ffds_lr.json')
+# env.vars.load_json('strengths_quads_06_straight.json')
+# env.vars.load_json('strengths_sext_00_arc_cell.json')
+
 line = env['fccee_p_ring']
-line0 = line.copy()
 
 section = line.select('mid_cell_edge_r::0','mid_cell_edge_l::1')
 cell0 = line.select('mid_cell_edge_l::0','mid_cell_edge_r::0')
@@ -68,6 +81,8 @@ env['ksf2ur'] = 'ksffam2 + ksf2ur_delta'
 env['ksf2sr'] = 'ksffam2 + ksf2sr_delta'
 env['ksd1sr'] = 'ksdfam1 + ksd1sr_delta'
 env['ksf1sr'] = 'ksffam1 + ksf1sr_delta'
+env['ksf3sr'] = 0
+env['ksf3sl'] = 0
 env['ksf1sl'] = 'ksffam1 + ksf1sl_delta'
 env['ksd1sl'] = 'ksdfam1 + ksd1sl_delta'
 env['ksf2sl'] = 'ksffam2 + ksf2sl_delta'
@@ -79,15 +94,11 @@ env.vars.default_to_zero = False
 
 left_knobs = [
     'ksd2ur_delta', 'ksf1ur_delta', 'ksd1ur_delta', 'ksf2ur_delta',
-    'ksf2sr_delta', 'ksd1sr_delta', 'ksf1sr_delta', 'ksf1sl_delta',
-    'ksd1sl_delta', 'ksf2sl_delta', 'ksf2ul_delta', 'ksd1ul_delta',
-    'ksf1ul_delta', 'ksd2ul_delta'
+    'ksf2sr_delta', 'ksd1sr_delta', 'ksf1sr_delta'
 ]
 right_knobs = [
-    'ksd2ur_delta', 'ksf1ur_delta', 'ksd1ur_delta', 'ksf2ur_delta',
-    'ksf2sr_delta', 'ksd1sr_delta', 'ksf1sr_delta', 'ksf1sl_delta',
-    'ksd1sl_delta', 'ksf2sl_delta', 'ksf2ul_delta', 'ksd1ul_delta',
-    'ksf1ul_delta', 'ksd2ul_delta'
+    'ksf1sl_delta', 'ksd1sl_delta', 'ksf2sl_delta', 'ksf2ul_delta',
+    'ksd1ul_delta', 'ksf1ul_delta', 'ksd2ul_delta'
 ]
 
 tw = section.twiss(init=twinit_cell_0_r,
@@ -114,3 +125,8 @@ opt_close_w = section.match(
 )
 opt = opt_close_w
 opt.step(10)
+
+import matplotlib.pyplot as plt
+opt.plot('wx_chrom', 'wy_chrom')
+opt.plot('ddx')
+plt.show()
