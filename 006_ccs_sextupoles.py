@@ -1,13 +1,21 @@
 import xtrack as xt
 import numpy as np
 
+env0 = xt.Environment()
+env0.particle_ref = xt.Particles(mass0=xt.ELECTRON_MASS_EV, energy0=45.6e9)
+env0.call('fccee_z_parameters.py')
+env0.call('fccee_z_elements.py')
+env0.call('fccee_z_lattice.py')
+env0.call('fccee_z_strengths.py')
+line0 = env0['fccee_p_ring'].copy()
+
+
 env = xt.Environment()
 env.particle_ref = xt.Particles(mass0=xt.ELECTRON_MASS_EV, energy0=45.6e9)
 env.call('fccee_z_parameters.py')
 env.call('fccee_z_elements.py')
 env.call('fccee_z_lattice.py')
 # env.call('fccee_z_strengths.py')
-
 env.vars.load_json('strengths_quads_00_arc_cell.json')
 env.vars.load_json('strengths_quads_01_ffccsyl.json')
 env.vars.load_json('strengths_quads_02_ffccsxl.json')
@@ -16,9 +24,7 @@ env.vars.load_json('strengths_quads_04_ffccsxr.json')
 env.vars.load_json('strengths_quads_05_ffds_lr.json')
 env.vars.load_json('strengths_quads_06_straight.json')
 env.vars.load_json('strengths_sext_00_arc_cell.json')
-
 line = env['fccee_p_ring']
-line0 = line.copy()
 
 section = line.select('mid_cell_edge_r::1','mid_cell_edge_l::2')
 cell1 = line.select('mid_cell_edge_l::1','mid_cell_edge_r::1')
@@ -298,18 +304,6 @@ opt_chrom3_y_right = section.match(
 )
 opt = opt_chrom3_y_right
 opt.step(6)
-# opt.disable(True)
-# opt.enable(target='d3muy_r')
-# fff = opt.get_merit_function(return_scalar=True)
-# from scipy.optimize import brute
-# oo = brute(fff, [(-0.5, 0)], full_output=True, finish=None)
-# fff.set_x([oo[0]])
-# prrrr
-# env['ksdm1r'] = line0['ksdm1r']
-# opt.step(6)
-# opt.disable(True)
-# opt.enable(target='d3muy_r')
-# opt.step(6)
 
 opt_chrom3_x_right = section.match(
     name='chrom3_r_x',
