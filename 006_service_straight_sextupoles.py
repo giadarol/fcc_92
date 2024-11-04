@@ -19,6 +19,7 @@ env.vars.load_json('strengths_quads_05_ffds_lr.json')
 env.vars.load_json('strengths_quads_06_straight.json')
 env.vars.load_json('strengths_sext_00_arc_cell.json')
 
+
 line = env['fccee_p_ring']
 
 section = line.select('mid_cell_edge_r::0','mid_cell_edge_l::1')
@@ -100,13 +101,9 @@ right_knobs = [
     'ksf1sl_delta', 'ksd1sl_delta', 'ksf2sl_delta', 'ksf2ul_delta',
     'ksd1ul_delta', 'ksf1ul_delta', 'ksd2ul_delta'
 ]
-env['ksf1sr_delta'] = 'ksf1sl_delta'
-env['ksd1sr_delta'] = 'ksd1sl_delta'
-env['ksf2sr_delta'] = 'ksf2sl_delta'
-env['ksf2ul_delta'] = 'ksf2ur_delta'
-env['ksd1ul_delta'] = 'ksd1ur_delta'
-env['ksf1ul_delta'] = 'ksf1ur_delta'
-env['ksd2ul_delta'] = 'ksd2ur_delta'
+
+for nn in right_knobs:
+    env[nn] = env.ref[nn.replace('l_delta', 'r_delta')]
 
 tw = section.twiss(init=twinit_cell_0_r,
                     compute_chromatic_properties=True,
@@ -128,8 +125,8 @@ opt_close_w = section.match(
                 ddx=twinit_cell_0_r.ddx,
                 ddpx=twinit_cell_0_r.ddpx,
                 at=xt.END),
-        # xt.TargetSet(wx_chrom=xt.LessThan(3.), wy_chrom=xt.LessThan(4.),
-        #              at='serv_inser_mid')
+        xt.TargetSet(wx_chrom=xt.LessThan(3.), wy_chrom=xt.LessThan(4.),
+                     at='serv_inser_mid')
         ]
 )
 opt = opt_close_w
@@ -145,5 +142,7 @@ out = {}
 tt_ss_strengths = env.vars.get_table().rows[list(ss_sext_strengths.keys())]
 out.update(tt_ss_strengths.to_dict())
 out.update(opt.get_knob_values(-1))
+tt_right_knobs = env.vars.get_table().rows[right_knobs]
+out.update(tt_right_knobs.to_dict())
 with open('strengths_sext_01_straight.json', 'w') as fid:
     json.dump(out, fid, indent=1)

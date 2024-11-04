@@ -24,6 +24,7 @@ env.vars.load_json('strengths_quads_04_ffccsxr.json')
 env.vars.load_json('strengths_quads_05_ffds_lr.json')
 env.vars.load_json('strengths_quads_06_straight.json')
 env.vars.load_json('strengths_sext_00_arc_cell.json')
+env.vars.load_json('strengths_sext_01_straight.json')
 line = env['fccee_p_ring']
 
 section = line.select('mid_cell_edge_r::1','mid_cell_edge_l::2')
