@@ -87,6 +87,9 @@ opt_ss = opt_pant.clone(
     add_targets=[
         xt.TargetSet(at='qdl1a::0', dx=0, dpx=0, weight=10000),
         xt.TargetSet(at='qfl2a::0', dx=0, dpx=0, weight=10000),
+        xt.TargetSet(at='qdl2a::0', betx=xt.GreaterThan(50)),
+        xt.TargetSet(at='qfl6a::0', bety=xt.GreaterThan(70)),
+        xt.TargetSet(at='qdl4a::0', betx=xt.GreaterThan(80)),
     ]
     )
 opt = opt_ss

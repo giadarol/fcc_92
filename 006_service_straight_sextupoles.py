@@ -1,7 +1,5 @@
 import xtrack as xt
 
-
-
 env = xt.Environment()
 env.particle_ref = xt.Particles(mass0=xt.ELECTRON_MASS_EV, energy0=45.6e9)
 env.call('fccee_z_parameters.py')
@@ -9,17 +7,17 @@ env.call('fccee_z_elements.py')
 env.call('fccee_z_lattice.py')
 
 # Pantaleo
-env.call('fccee_z_strengths.py')
+# env.call('fccee_z_strengths.py')
 
-# Gianni
-# env.vars.load_json('strengths_quads_00_arc_cell.json')
-# env.vars.load_json('strengths_quads_01_ffccsyl.json')
-# env.vars.load_json('strengths_quads_02_ffccsxl.json')
-# env.vars.load_json('strengths_quads_03_ffccsyr.json')
-# env.vars.load_json('strengths_quads_04_ffccsxr.json')
-# env.vars.load_json('strengths_quads_05_ffds_lr.json')
-# env.vars.load_json('strengths_quads_06_straight.json')
-# env.vars.load_json('strengths_sext_00_arc_cell.json')
+# # Gianni
+env.vars.load_json('strengths_quads_00_arc_cell.json')
+env.vars.load_json('strengths_quads_01_ffccsyl.json')
+env.vars.load_json('strengths_quads_02_ffccsxl.json')
+env.vars.load_json('strengths_quads_03_ffccsyr.json')
+env.vars.load_json('strengths_quads_04_ffccsxr.json')
+env.vars.load_json('strengths_quads_05_ffds_lr.json')
+env.vars.load_json('strengths_quads_06_straight.json')
+env.vars.load_json('strengths_sext_00_arc_cell.json')
 
 line = env['fccee_p_ring']
 
@@ -74,22 +72,24 @@ for ss in sl_match:
 # sd2aul vars['ksd2ul'] ((vars['ksdfam2'] - ((0.0 * vars['dogleg_on']) * vars['sxt_on'])) + (0.058 * vars['sxt_on']))
 
 env.vars.default_to_zero = True
-env['ksd2ur'] = 'ksdfam2 + ksd2ur_delta'
-env['ksf1ur'] = 'ksffam1 + ksf1ur_delta'
-env['ksd1ur'] = 'ksdfam1 + ksd1ur_delta'
-env['ksf2ur'] = 'ksffam2 + ksf2ur_delta'
-env['ksf2sr'] = 'ksffam2 + ksf2sr_delta'
-env['ksd1sr'] = 'ksdfam1 + ksd1sr_delta'
-env['ksf1sr'] = 'ksffam1 + ksf1sr_delta'
-env['ksf3sr'] = 0
-env['ksf3sl'] = 0
-env['ksf1sl'] = 'ksffam1 + ksf1sl_delta'
-env['ksd1sl'] = 'ksdfam1 + ksd1sl_delta'
-env['ksf2sl'] = 'ksffam2 + ksf2sl_delta'
-env['ksf2ul'] = 'ksffam2 + ksf2ul_delta'
-env['ksd1ul'] = 'ksdfam1 + ksd1ul_delta'
-env['ksf1ul'] = 'ksffam1 + ksf1ul_delta'
-env['ksd2ul'] = 'ksdfam2 + ksd2ul_delta'
+ss_sext_strengths = {}
+ss_sext_strengths['ksd2ur'] = 'ksdfam2 + ksd2ur_delta'
+ss_sext_strengths['ksf1ur'] = 'ksffam1 + ksf1ur_delta'
+ss_sext_strengths['ksd1ur'] = 'ksdfam1 + ksd1ur_delta'
+ss_sext_strengths['ksf2ur'] = 'ksffam2 + ksf2ur_delta'
+ss_sext_strengths['ksf2sr'] = 'ksffam2 + ksf2sr_delta'
+ss_sext_strengths['ksd1sr'] = 'ksdfam1 + ksd1sr_delta'
+ss_sext_strengths['ksf1sr'] = 'ksffam1 + ksf1sr_delta'
+ss_sext_strengths['ksf3sr'] = 0
+ss_sext_strengths['ksf3sl'] = 0
+ss_sext_strengths['ksf1sl'] = 'ksffam1 + ksf1sl_delta'
+ss_sext_strengths['ksd1sl'] = 'ksdfam1 + ksd1sl_delta'
+ss_sext_strengths['ksf2sl'] = 'ksffam2 + ksf2sl_delta'
+ss_sext_strengths['ksf2ul'] = 'ksffam2 + ksf2ul_delta'
+ss_sext_strengths['ksd1ul'] = 'ksdfam1 + ksd1ul_delta'
+ss_sext_strengths['ksf1ul'] = 'ksffam1 + ksf1ul_delta'
+ss_sext_strengths['ksd2ul'] = 'ksdfam2 + ksd2ul_delta'
+env.vars.update(ss_sext_strengths)
 env.vars.default_to_zero = False
 
 left_knobs = [
@@ -100,6 +100,13 @@ right_knobs = [
     'ksf1sl_delta', 'ksd1sl_delta', 'ksf2sl_delta', 'ksf2ul_delta',
     'ksd1ul_delta', 'ksf1ul_delta', 'ksd2ul_delta'
 ]
+env['ksf1sr_delta'] = 'ksf1sl_delta'
+env['ksd1sr_delta'] = 'ksd1sl_delta'
+env['ksf2sr_delta'] = 'ksf2sl_delta'
+env['ksf2ul_delta'] = 'ksf2ur_delta'
+env['ksd1ul_delta'] = 'ksd1ur_delta'
+env['ksf1ul_delta'] = 'ksf1ur_delta'
+env['ksd2ul_delta'] = 'ksd2ur_delta'
 
 tw = section.twiss(init=twinit_cell_0_r,
                     compute_chromatic_properties=True,
@@ -110,7 +117,8 @@ opt_close_w = section.match(
     solve=False,
     init=twinit_cell_0_r,
     compute_chromatic_properties=True,
-    vary=xt.VaryList(left_knobs + right_knobs, step=1e-4),
+    #vary=xt.VaryList(left_knobs + right_knobs, step=1e-4),
+    vary=xt.VaryList(left_knobs, step=1e-4),
     targets=[
         xt.TargetSet(
                 ax_chrom=twinit_cell_0_r.ax_chrom,
@@ -120,8 +128,9 @@ opt_close_w = section.match(
                 ddx=twinit_cell_0_r.ddx,
                 ddpx=twinit_cell_0_r.ddpx,
                 at=xt.END),
-        xt.TargetSet(wx_chrom=xt.LessThan(3.), wy_chrom=xt.LessThan(4.),
-                     at='serv_inser_mid')]
+        # xt.TargetSet(wx_chrom=xt.LessThan(3.), wy_chrom=xt.LessThan(4.),
+        #              at='serv_inser_mid')
+        ]
 )
 opt = opt_close_w
 opt.step(10)
@@ -130,3 +139,11 @@ import matplotlib.pyplot as plt
 opt.plot('wx_chrom', 'wy_chrom')
 opt.plot('ddx')
 plt.show()
+
+import json
+out = {}
+tt_ss_strengths = env.vars.get_table().rows[list(ss_sext_strengths.keys())]
+out.update(tt_ss_strengths.to_dict())
+out.update(opt.get_knob_values(-1))
+with open('strengths_sext_01_straight.json', 'w') as fid:
+    json.dump(out, fid, indent=1)
