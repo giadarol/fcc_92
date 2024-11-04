@@ -15,14 +15,14 @@ env.particle_ref = xt.Particles(mass0=xt.ELECTRON_MASS_EV, energy0=45.6e9)
 env.call('fccee_z_parameters.py')
 env.call('fccee_z_elements.py')
 env.call('fccee_z_lattice.py')
-# env.call('fccee_z_strengths.py')
+env.call('fccee_z_strengths.py')
 env.vars.load_json('strengths_quads_00_arc_cell.json')
 env.vars.load_json('strengths_quads_01_ffccsyl.json')
 env.vars.load_json('strengths_quads_02_ffccsxl.json')
 env.vars.load_json('strengths_quads_03_ffccsyr.json')
 env.vars.load_json('strengths_quads_04_ffccsxr.json')
 env.vars.load_json('strengths_quads_05_ffds_lr.json')
-env.vars.load_json('strengths_quads_06_straight.json')
+# env.vars.load_json('strengths_quads_06_straight.json')
 env.vars.load_json('strengths_sext_00_arc_cell.json')
 line = env['fccee_p_ring']
 
@@ -370,7 +370,9 @@ opt_ddx_right = section.match(
 opt = opt_ddx_right
 opt.step(5)
 
-opt_close_w.clone(name='close_final').step(5)
+opt = opt_close_w.clone(name='close_final').step(5)
+
+
 # opt_chrom3_y_left.step(5)
 # opt_chrom3_x_left.step(5)
 # opt_chrom3_y_right.step(5)
