@@ -373,6 +373,19 @@ opt.step(5)
 
 opt = opt_close_w.clone(name='close_final').step(5)
 
+opt_close_w_and_ddx = opt_close_w.clone(name='close_w_and_ddx',
+                    remove_vary=True,
+                    add_vary=list(opt_ddx_left.vary) + list(opt_ddx_right.vary),
+                    add_targets=[
+                    xt.TargetSet(
+                        ddx=0, ddpx=0, at='ip_mid'),
+                    xt.TargetSet(
+                         ddx=twinit_cell_1_r.ddx,
+                         ddpx=twinit_cell_1_r.ddpx,
+                         at=xt.END),
+                                ])
+opt = opt_close_w_and_ddx
+
 # Test
 # opt.disable(target='ip.*')
 # opt.step(5)
