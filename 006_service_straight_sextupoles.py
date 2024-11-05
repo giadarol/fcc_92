@@ -126,14 +126,22 @@ opt_close_w = section.match(
                 ddpx=twinit_cell_0_r.ddpx,
                 at=xt.END),
         xt.TargetSet(wx_chrom=xt.LessThan(3.), wy_chrom=xt.LessThan(4.),
-                     at='serv_inser_mid')
+                     at='serv_inser_mid'),
+        xt.TargetSet(wx_chrom=xt.LessThan(4.), wy_chrom=xt.LessThan(8.),
+                     at='sd1aur'),
+        xt.TargetSet(wx_chrom=xt.LessThan(4.), wy_chrom=xt.LessThan(8.),
+                     at='sd1asr'),
+        xt.TargetSet(wx_chrom=xt.LessThan(4.), wy_chrom=xt.LessThan(8.),
+                     at='sd1aul'),
+        xt.TargetSet(wx_chrom=xt.LessThan(4.), wy_chrom=xt.LessThan(8.),
+                     at='sd1asl'),
         ]
 )
 opt = opt_close_w
 opt.step(10)
 
 import matplotlib.pyplot as plt
-opt.plot('wx_chrom', 'wy_chrom')
+opt.plot('wx_chrom', 'wy_chrom', hover=True)
 opt.plot('ddx')
 plt.show()
 
