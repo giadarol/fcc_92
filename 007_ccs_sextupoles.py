@@ -182,12 +182,26 @@ for kk in ['ksfx1l', 'ksdy1l', 'ksdm1l', 'ksfm2l',
            ]:
     env[kk] = 0.001 * np.sign(env[kk])
 
+# Inspect sextupoles in special arc cells
+sl_match = [
+    'sf2al3', 'sd1al3', 'sf1al3', 'sd2al3',
+    'sd2bl3', 'sf1bl3', 'sd1bl3', 'sf2bl3',
+    'sf2afl', 'sd1afl', 'sf1afl', 'sd2afl',
+    'sf3afl',
+    'sf3afr', 'sd2afr', 'sf1afr', 'sd1afr',
+    'sf2afr', 'sf2br3', 'sd1br3', 'sf1br3',
+    'sd2br3', 'sd2ar3', 'sf1ar3', 'sd1ar3',
+    'sf2ar3']
+
+for ss in sl_match:
+    ee = env[ss].get_expr('k2')
+    print(ss, ee, ee._expr)
 
 # # Define circuits in special cells
 env.vars.default_to_zero = True
 env['ksf2al3'] = 'ksffam2 + ksf2al3_delta'
+env['ksd1al3'] = 'ksdfam1'
 env['ksf1al3'] = 'ksffam1 + ksf1al3_delta'
-env['ksf1al3'] = 'ksffam1'
 env['ksd2al3'] = 'ksdfam2'
 env['ksd2bl3'] = 'ksdfam2'
 env['ksf1bl3'] = 'ksffam1 + ksf1bl3_delta'
@@ -196,22 +210,27 @@ env['ksf2bl3'] = 'ksffam2 + ksf2bl3_delta'
 env['ksf2fl']  = 'ksffam2 + ksf2fl_delta'
 env['ksd1fl']  = 'ksdfam1'
 env['ksf1fl']  = 'ksffam1 + ksf1fl_delta'
-env['ksd2fl']  = 0.
-env['ksf3fl']  = 0.
-env['ksf3fr']  = 0.
-env['ksd2fr']  = 0.
+env['ksd2fl']  = 0
+env['ksf3fl']  = 0
+env['ksf3fr']  = 0
+env['ksd2fr']  = 0
 env['ksf1fr']  = 'ksffam1 + ksf1fr_delta'
+env['ksd1fr']  = 'ksdfam1'
 env['ksf2fr']  = 'ksffam2 + ksf2fr_delta'
-env['ksf2fr']  = 'ksffam2'
 env['ksf2br3'] = 'ksffam2 + ksf2br3_delta'
 env['ksd1br3'] = 'ksdfam1'
 env['ksf1br3'] = 'ksffam1 + ksf1br3_delta'
 env['ksd2br3'] = 'ksdfam2'
 env['ksd2ar3'] = 'ksdfam2'
-env['ksf1ar3'] = 'ksffam1'
 env['ksf1ar3'] = 'ksffam1 + ksf1ar3_delta'
+env['ksd1ar3'] = 'ksdfam1'
 env['ksf2ar3'] = 'ksffam2 + ksf2ar3_delta'
 env.vars.default_to_zero = True
+
+ddx_left_knobs = ['ksf2al3_delta', 'ksf1al3_delta', 'ksf1bl3_delta',
+                  'ksf2bl3_delta', 'ksf2fl_delta', 'ksf1fl_delta']
+ddx_right_knobs = ['ksf1fr_delta', 'ksf2fr_delta', 'ksf2br3_delta',
+                   'ksf1br3_delta', 'ksf1ar3_delta', 'ksf2ar3_delta']
 
 tw_no_ip_sext = section.twiss(init=twinit_cell_1_r,
                     compute_chromatic_properties=True)
@@ -325,25 +344,8 @@ opt.step(6)
 
 tw_corr_om = twiss_off_momentum()
 
-# Inspect sextupoles in special arc cells
-sl_match = [
-    'sf2al3', 'sd1al3', 'sf1al3', 'sd2al3',
-    'sd2bl3', 'sf1bl3', 'sd1bl3', 'sf2bl3',
-    'sf2afl', 'sd1afl', 'sf1afl', 'sd2afl',
-    'sf3afl',
-    'sf3afr', 'sd2afr', 'sf1afr', 'sd1afr',
-    'sf2afr', 'sf2br3', 'sd1br3', 'sf1br3',
-    'sd2br3', 'sd2ar3', 'sf1ar3', 'sd1ar3',
-    'sf2ar3']
 
-for ss in sl_match:
-    ee = env[ss].get_expr('k2')
-    print(ss, ee, ee._expr)
 
-ddx_left_knobs = ['ksf2al3_delta', 'ksf1al3_delta', 'ksf1bl3_delta',
-                  'ksf2bl3_delta', 'ksf2fl_delta', 'ksf1fl_delta']
-ddx_right_knobs = ['ksf1fr_delta', 'ksf2fr_delta', 'ksf2br3_delta',
-                   'ksf1br3_delta', 'ksf1ar3_delta', 'ksf2ar3_delta']
 
 opt_ddx_left = section.match(
     name='ddx_left',
@@ -385,6 +387,7 @@ opt_close_w_and_ddx = opt_close_w.clone(name='close_w_and_ddx',
                          at=xt.END),
                                 ])
 opt = opt_close_w_and_ddx
+opt.step(5)
 
 # Test
 # opt.disable(target='ip.*')
