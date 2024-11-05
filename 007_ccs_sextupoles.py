@@ -1,15 +1,24 @@
 import xtrack as xt
 import numpy as np
 
+from twiss_open_off_momentum import twiss_off_momentum, ActionOffMom
+
+# Pantaleo's machine
 env0 = xt.Environment()
 env0.particle_ref = xt.Particles(mass0=xt.ELECTRON_MASS_EV, energy0=45.6e9)
 env0.call('fccee_z_parameters.py')
 env0.call('fccee_z_elements.py')
 env0.call('fccee_z_lattice.py')
 env0.call('fccee_z_strengths.py')
-line0 = env0['fccee_p_ring'].copy()
+line = env0['fccee_p_ring']
+line0 = line.copy()
+section0 = line.select('mid_cell_edge_r::1','mid_cell_edge_l::2')
+tw0_om = twiss_off_momentum(section=section0)
+tw0_om_full = twiss_off_momentum(section=section0, delta_range=(-2e-2, 2e-2), num_delta=41,
+                                 edge_l=0,edge_r=-1)
+# env = env0
 
-
+# Gianni's machine
 env = xt.Environment()
 env.particle_ref = xt.Particles(mass0=xt.ELECTRON_MASS_EV, energy0=45.6e9)
 env.call('fccee_z_parameters.py')
@@ -39,10 +48,6 @@ twinit_cell_1_r = tw_cell_1.get_twiss_init('mid_cell_edge_r')
 tw_cell_2 = cell2.twiss4d()
 twinit_cell_2_l = tw_cell_1.get_twiss_init('mid_cell_edge_l')
 
-tw0 = section.twiss(init=twinit_cell_1_r,
-                    compute_chromatic_properties=True,
-                    strengths=True)
-# tw0_vs_delta = line.get_non_linear_chromaticity(delta0_range=(-1e-2, 1e-2), num_delta=50)
 tt0 = section.get_table(attr=True)
 tt0_quad = tt0.rows[tt0.element_type == 'Quadrupole']
 tt0_sext = tt0.rows[tt0.element_type == 'Sextupole']
@@ -52,97 +57,7 @@ tt_mult_before = env.vars.get_table().rows['koct.*|kdec.*']
 for kk in tt_mult_before.name:
     env[kk] = 0.
 
-def twiss_off_momentum(delta_range=(-0.02, 0.02), num_delta=21,
-                       edge_l='ff_edge_l', edge_r='ff_edge_r'):
-    delta_test = np.linspace(*delta_range, num_delta)
-    tw_test = []
-    mux_l_test = []
-    muy_l_test = []
-    mux_r_test = []
-    muy_r_test = []
-    tt_0 = section.twiss(init_at='ip_mid', betx=env['bxip'], bety=env['byip'])
-
-    for dd in delta_test:
-        tt = section.twiss(init_at='ip_mid', betx=env['bxip'], bety=env['byip'],
-                        delta=dd)
-        mux_l_test.append(tt['mux', 'ip_mid'] - tt['mux', edge_l]
-                        -(tt_0['mux', 'ip_mid'] - tt_0['mux', edge_l]))
-        muy_l_test.append(tt['muy', 'ip_mid'] - tt['muy', edge_l]
-                        -(tt_0['muy', 'ip_mid'] - tt_0['muy', edge_l]))
-        mux_r_test.append(-tt['mux', 'ip_mid'] + tt['mux', edge_r]
-                        -(-tt_0['mux', 'ip_mid'] + tt_0['mux', edge_r]))
-        muy_r_test.append(-tt['muy', 'ip_mid'] + tt['muy', edge_r]
-                        -(-tt_0['muy', 'ip_mid'] + tt_0['muy', edge_r]))
-        tw_test.append(tt)
-
-    # Polynominal fit
-    n_order = 20
-    mux_l_test = np.array(mux_l_test)
-    muy_l_test = np.array(muy_l_test)
-    mux_r_test = np.array(mux_r_test)
-    muy_r_test = np.array(muy_r_test)
-    delta_test = np.array(delta_test)
-
-    p_mux_l = np.polyfit(delta_test, mux_l_test, n_order)
-    p_muy_l = np.polyfit(delta_test, muy_l_test, n_order)
-    p_mux_r = np.polyfit(delta_test, mux_r_test, n_order)
-    p_muy_r = np.polyfit(delta_test, muy_r_test, n_order)
-
-    mux_l_poly = np.polyval(p_mux_l, delta_test)
-    muy_l_poly = np.polyval(p_muy_l, delta_test)
-    mux_r_poly = np.polyval(p_mux_r, delta_test)
-    muy_r_poly = np.polyval(p_muy_r, delta_test)
-
-    # derivatives in zero
-    dmux_l = p_mux_l[-2]
-    d2mux_l = 2*p_mux_l[-3]
-    d3mux_l = 6*p_mux_l[-4]
-    d4mux_l = 24*p_mux_l[-5]
-    d5mux_l = 120*p_mux_l[-6]
-    dmuy_l = p_muy_l[-2]
-    d2muy_l = 2*p_muy_l[-3]
-    d3muy_l = 6*p_muy_l[-4]
-    d4muy_l = 24*p_muy_l[-5]
-    d5muy_l = 120*p_muy_l[-6]
-
-    dmux_r = p_mux_r[-2]
-    d2mux_r = 2*p_mux_r[-3]
-    d3mux_r = 6*p_mux_r[-4]
-    d4mux_r = 24*p_mux_r[-5]
-    d5mux_r = 120*p_mux_r[-6]
-    dmuy_r = p_muy_r[-2]
-    d2muy_r = 2*p_muy_r[-3]
-    d3muy_r = 6*p_muy_r[-4]
-    d4muy_r = 24*p_muy_r[-5]
-    d5muy_r = 120*p_muy_r[-6]
-
-    mux_rms_l = mux_l_test.std()
-    muy_rms_l = muy_l_test.std()
-    mux_rms_r = mux_r_test.std()
-    muy_rms_r = muy_r_test.std()
-    out = dict(mux_l_test=mux_l_test, muy_l_test=muy_l_test, mux_r_test=mux_r_test, muy_r_test=muy_r_test,
-               tw_test=tw_test, delta_test=delta_test,
-                p_mux=p_mux_l, p_muy=p_muy_l, tt_0=tt_0,
-                mux_rms_l=mux_rms_l, muy_rms_l=muy_rms_l, mux_rms_r=mux_rms_r, muy_rms_r=muy_rms_r,
-                mux_l_poly=mux_l_poly, muy_l_poly=muy_l_poly, mux_r_poly=mux_r_poly, muy_r_poly=muy_r_poly,
-                dmux_l=dmux_l, d2mux_l=d2mux_l, d3mux_l=d3mux_l, d4mux_l=d4mux_l, d5mux_l=d5mux_l,
-                dmuy_l=dmuy_l, d2muy_l=d2muy_l, d3muy_l=d3muy_l, d4muy_l=d4muy_l, d5muy_l=d5muy_l,
-                dmux_r=dmux_r, d2mux_r=d2mux_r, d3mux_r=d3mux_r, d4mux_r=d4mux_r, d5mux_r=d5mux_r,
-                dmuy_r=dmuy_r, d2muy_r=d2muy_r, d3muy_r=d3muy_r, d4muy_r=d4muy_r, d5muy_r=d5muy_r,
-                )
-
-    return out
-
-tw0_om = twiss_off_momentum()
-tw0_om_full = twiss_off_momentum(delta_range=(-2e-2, 2e-2), num_delta=41,
-                                 edge_l=0,edge_r=-1)
-
-class ActionOffMom(xt.Action):
-    def run(self):
-        tw_om = twiss_off_momentum()
-        return tw_om
-
-act = ActionOffMom()
+act = ActionOffMom(section=section)
 
 tar_w_left = xt.TargetSet(wx_chrom=0, wy_chrom=0, at='ip_mid')
 tar_w_right = xt.TargetSet(wx_chrom=0, wy_chrom=0, at='ip_mid')
@@ -275,7 +190,7 @@ opt_close_w = section.match(
 opt = opt_close_w
 opt.step(20)
 
-tw_om = twiss_off_momentum()
+tw_om = twiss_off_momentum(section=section)
 
 # Match third order chromaticity
 opt_chrom3_y_left = section.match(
@@ -342,7 +257,7 @@ opt.step(6)
 # env['ksfm2r'] = line0['ksfm2r']
 
 
-tw_corr_om = twiss_off_momentum()
+tw_corr_om = twiss_off_momentum(section=section)
 
 
 
@@ -389,16 +304,13 @@ opt_close_w_and_ddx = opt_close_w.clone(name='close_w_and_ddx',
 opt = opt_close_w_and_ddx
 opt.step(5)
 
+prrrr
+
 # Test
 # opt.disable(target='ip.*')
 # opt.step(5)
 
-
-# opt_chrom3_y_left.step(5)
-# opt_chrom3_x_left.step(5)
-# opt_chrom3_y_right.step(5)
-# opt_chrom3_x_right.step(5)
-tw_om_chrom3 = twiss_off_momentum()
+tw_om_chrom3 = twiss_off_momentum(section=section)
 
 opt_chrom5_left = section.match(
     name='chrom5_l',
@@ -428,6 +340,11 @@ opt_chrom5_right = section.match(
 opt = opt_chrom5_right
 opt.step(10)
 
+opt_chrom3_x_left.step(5)
+opt_chrom3_y_left.step(5)
+opt_chrom3_x_right.step(5)
+opt_chrom3_y_right.step(5)
+
 # Try to match the chromaticities using the arc families
 opt_dqxy = env['fccee_p_ring'].match(
     solve=False,
@@ -439,10 +356,11 @@ opt = opt_dqxy
 opt.step(10)
 
 
-tw_om_final = twiss_off_momentum()
+tw_om_final = twiss_off_momentum(section=section)
 
-tw_om_final_full = twiss_off_momentum(delta_range=(-2e-2, 2e-2), num_delta=41,
-                                 edge_l=0,edge_r=-1)
+tw_om_final_full = twiss_off_momentum(section=section,
+                                delta_range=(-2e-2, 2e-2), num_delta=41,
+                                edge_l=0,edge_r=-1)
 # tw_vs_delta = line.get_non_linear_chromaticity(delta0_range=(-1e-2, 1e-2), num_delta=50)
 
 import matplotlib.pyplot as plt
