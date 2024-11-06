@@ -22,35 +22,25 @@ env.vars.load_json('strengths_sext_02_final_focus.json')
 
 tt = line.get_table(attr=True)
 
-twr = line.twiss(
-    start='ip_mid::1',
-    end='mid_cell_edge_r::2',
-    betx=env['bxip'],
-    bety=env['byip'],
-)
+tw4d = line.twiss4d()
 
-twl = line.twiss(
-    start='mid_cell_edge_l::1',
-    end='ip_mid::1',
-    init_at='ip_mid::1',
-    betx=env['bxip'],
-    bety=env['byip'],
-)
+# Remove lag (radiatio is off)
+env['rf_lag'] = 0.5
 
-tw = line.twiss(
-    start='mid_cell_edge_l::0',
-    end='mid_cell_edge_r::2',
-    init_at='ip_mid::1',
-    betx=env['bxip'],
-    bety=env['byip'],
-)
-
-tw_on_mom = line.twiss4d(compute_chromatic_properties=False)
+tw6d = line.twiss()
 
 import matplotlib.pyplot as plt
-plt.close('all')
-twl.plot()
-twr.plot()
-tw.plot()
-tw_on_mom.plot()
+from momentum_acceptance import ActionMomentumAcceptance
+nemitt_x = 6.33e-5
+nemitt_y = 1.69e-7
+energy_spread=3.9e-4
+nn_y_r=15
+max_y_r=15
+global_xy_limit = 10e-2
+num_turns = 100
+act = ActionMomentumAcceptance(line,
+            nemitt_x, nemitt_y, nn_y_r, max_y_r, energy_spread,
+            global_xy_limit=global_xy_limit, num_turns=num_turns)
+
+act.mom_acceptance(plot=True)
 plt.show()
