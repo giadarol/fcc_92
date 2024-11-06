@@ -113,33 +113,35 @@ for ss in sl_match:
     print(ss, ee, ee._expr)
 
 # # Define circuits in special cells
+vars_ds_sextupoles = {}
+vars_ds_sextupoles['ksf2al3'] = 'ksffam2 + ksf2al3_delta'
+vars_ds_sextupoles['ksd1al3'] = 'ksdfam1'
+vars_ds_sextupoles['ksf1al3'] = 'ksffam1 + ksf1al3_delta'
+vars_ds_sextupoles['ksd2al3'] = 'ksdfam2'
+vars_ds_sextupoles['ksd2bl3'] = 'ksdfam2'
+vars_ds_sextupoles['ksf1bl3'] = 'ksffam1 + ksf1bl3_delta'
+vars_ds_sextupoles['ksd1bl3'] = 'ksdfam1'
+vars_ds_sextupoles['ksf2bl3'] = 'ksffam2 + ksf2bl3_delta'
+vars_ds_sextupoles['ksf2fl']  = 'ksffam2 + ksf2fl_delta'
+vars_ds_sextupoles['ksd1fl']  = 'ksdfam1'
+vars_ds_sextupoles['ksf1fl']  = 'ksffam1 + ksf1fl_delta'
+vars_ds_sextupoles['ksd2fl']  = 0
+vars_ds_sextupoles['ksf3fl']  = 0
+vars_ds_sextupoles['ksf3fr']  = 0
+vars_ds_sextupoles['ksd2fr']  = 0
+vars_ds_sextupoles['ksf1fr']  = 'ksffam1 + ksf1fr_delta'
+vars_ds_sextupoles['ksd1fr']  = 'ksdfam1'
+vars_ds_sextupoles['ksf2fr']  = 'ksffam2 + ksf2fr_delta'
+vars_ds_sextupoles['ksf2br3'] = 'ksffam2 + ksf2br3_delta'
+vars_ds_sextupoles['ksd1br3'] = 'ksdfam1'
+vars_ds_sextupoles['ksf1br3'] = 'ksffam1 + ksf1br3_delta'
+vars_ds_sextupoles['ksd2br3'] = 'ksdfam2'
+vars_ds_sextupoles['ksd2ar3'] = 'ksdfam2'
+vars_ds_sextupoles['ksf1ar3'] = 'ksffam1 + ksf1ar3_delta'
+vars_ds_sextupoles['ksd1ar3'] = 'ksdfam1'
+vars_ds_sextupoles['ksf2ar3'] = 'ksffam2 + ksf2ar3_delta'
 env.vars.default_to_zero = True
-env['ksf2al3'] = 'ksffam2 + ksf2al3_delta'
-env['ksd1al3'] = 'ksdfam1'
-env['ksf1al3'] = 'ksffam1 + ksf1al3_delta'
-env['ksd2al3'] = 'ksdfam2'
-env['ksd2bl3'] = 'ksdfam2'
-env['ksf1bl3'] = 'ksffam1 + ksf1bl3_delta'
-env['ksd1bl3'] = 'ksdfam1'
-env['ksf2bl3'] = 'ksffam2 + ksf2bl3_delta'
-env['ksf2fl']  = 'ksffam2 + ksf2fl_delta'
-env['ksd1fl']  = 'ksdfam1'
-env['ksf1fl']  = 'ksffam1 + ksf1fl_delta'
-env['ksd2fl']  = 0
-env['ksf3fl']  = 0
-env['ksf3fr']  = 0
-env['ksd2fr']  = 0
-env['ksf1fr']  = 'ksffam1 + ksf1fr_delta'
-env['ksd1fr']  = 'ksdfam1'
-env['ksf2fr']  = 'ksffam2 + ksf2fr_delta'
-env['ksf2br3'] = 'ksffam2 + ksf2br3_delta'
-env['ksd1br3'] = 'ksdfam1'
-env['ksf1br3'] = 'ksffam1 + ksf1br3_delta'
-env['ksd2br3'] = 'ksdfam2'
-env['ksd2ar3'] = 'ksdfam2'
-env['ksf1ar3'] = 'ksffam1 + ksf1ar3_delta'
-env['ksd1ar3'] = 'ksdfam1'
-env['ksf2ar3'] = 'ksffam2 + ksf2ar3_delta'
+env.vars.update(vars_ds_sextupoles)
 env.vars.default_to_zero = True
 
 ddx_left_knobs = ['ksf2al3_delta', 'ksf1al3_delta', 'ksf1bl3_delta',
@@ -304,41 +306,46 @@ opt_close_w_and_ddx = opt_close_w.clone(name='close_w_and_ddx',
 opt = opt_close_w_and_ddx
 opt.step(5)
 
-prrrr
-
 # Test
 # opt.disable(target='ip.*')
 # opt.step(5)
 
 tw_om_chrom3 = twiss_off_momentum(section=section)
 
-opt_chrom5_left = section.match(
-    name='chrom5_l',
-    solve=False,
-    init=twinit_cell_1_r,
-    compute_chromatic_properties=True,
-    vary=xt.VaryList(['kdec1l', 'kdecfl', 'kdecdl'], step=1.),
-    targets=[
-        act.target('d5mux_l', 0, tol=1e6),
-        act.target('d5muy_l', 0, tol=1e6),
-    ]
-)
-opt = opt_chrom5_left
-opt.step(10)
+# opt_chrom5_left = section.match(
+#     name='chrom5_l',
+#     solve=False,
+#     init=twinit_cell_1_r,
+#     compute_chromatic_properties=True,
+#     vary=xt.VaryList(['kdec1l', 'kdecfl', 'kdecdl'], step=1.),
+#     targets=[
+#         act.target('d5mux_l', 0, tol=1e6),
+#         act.target('d5muy_l', 0, tol=1e6),
+#     ] + list(opt_chrom3_x_left.targets) + list(opt_chrom3_y_left.targets)
+# )
+# opt = opt_chrom5_left
+# opt.step(10)
 
-opt_chrom5_right = section.match(
-    name='chrom5_r',
-    solve=False,
-    init=twinit_cell_2_l,
-    compute_chromatic_properties=True,
-    vary=xt.VaryList(['kdec1r', 'kdecfr', 'kdecdr'], step=1.),
-    targets=[
-        act.target('d5mux_r', 0, tol=1e6),
-        act.target('d5muy_r', 0, tol=1e6),
-    ]
-)
-opt = opt_chrom5_right
-opt.step(10)
+# opt_chrom5_right = section.match(
+#     name='chrom5_r',
+#     solve=False,
+#     init=twinit_cell_2_l,
+#     compute_chromatic_properties=True,
+#     vary=xt.VaryList(['kdec1r', 'kdecfr', 'kdecdr'], step=1., limits=[-3e3, 3e3]),
+#     targets=[
+#         act.target('d5mux_r', 0, tol=1e6, weight=1e-5),
+#         act.target('d5muy_r', 0, tol=1e6, weight=1e-5),
+#     ] + list(opt_chrom3_x_right.targets) + list(opt_chrom3_y_right.targets)
+# )
+# opt = opt_chrom5_right
+# opt.step(3)
+
+# env['kdec1r'] = line0['kdec1r']
+# env['kdecfr'] = line0['kdecfr']
+# env['kdecdr'] = line0['kdecdr']
+
+
+# prrrr
 
 opt_chrom3_x_left.step(5)
 opt_chrom3_y_left.step(5)
@@ -408,6 +415,25 @@ spy_l.plot(tw0_om_full['delta_test'], tw0_om_full['muy_l_test'], '--k')
 spy_r.plot(tw_om_final_full['delta_test'], tw_om_final_full['muy_r_test'])
 spy_r.plot(tw0_om_full['delta_test'], tw0_om_full['muy_r_test'], '--k')
 
+import json
+out = {}
+out.update(vars_ds_sextupoles)
+out.update(opt_w_left.get_knob_values())
+out.update(opt_w_right.get_knob_values())
+out.update(opt_chrom3_x_left.get_knob_values())
+out.update(opt_chrom3_y_left.get_knob_values())
+out.update(opt_chrom3_x_right.get_knob_values())
+out.update(opt_chrom3_y_right.get_knob_values())
+out.update(opt_ddx_left.get_knob_values())
+out.update(opt_ddx_right.get_knob_values())
+
+tt_to_save = env.vars.get_table().rows[list(out.keys())]
+out.update(tt_to_save.to_dict())
+
+
+with open('strengths_sext_02_final_focus.json', 'w') as fid:
+    json.dump(out, fid, indent=1)
+
 # # Compare
 # tw_ref = line0.twiss4d(delta0=1e-2)
 # tw_test = line.twiss4d(delta0=1e-2)
@@ -416,6 +442,18 @@ spy_r.plot(tw0_om_full['delta_test'], tw0_om_full['muy_r_test'], '--k')
 # plt.suptitle('Reference')
 # tw_test.plot('wx_chrom wy_chrom')
 # plt.suptitle('Test')
+# from momentum_acceptance import ActionMomentumAcceptance
+# nemitt_x = 6.33e-5
+# nemitt_y = 1.69e-7
+# energy_spread=3.9e-4
+# nn_y_r=15
+# max_y_r=15
+# global_xy_limit = 10e-2
+# num_turns = 100
+# act0 = ActionMomentumAcceptance(line0, nemitt_x, nemitt_y, nn_y_r, max_y_r, energy_spread,
+#                                 global_xy_limit=global_xy_limit, num_turns=num_turns)
+# act = ActionMomentumAcceptance(line, nemitt_x, nemitt_y, nn_y_r, max_y_r, energy_spread,
+#                                 global_xy_limit=global_xy_limit, num_turns=num_turns)
 
-plt.show()
+# plt.show()
 

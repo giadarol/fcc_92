@@ -16,6 +16,9 @@ env.vars.load_json('strengths_quads_03_ffccsyr.json')
 env.vars.load_json('strengths_quads_04_ffccsxr.json')
 env.vars.load_json('strengths_quads_05_ffds_lr.json')
 env.vars.load_json('strengths_quads_06_straight.json')
+env.vars.load_json('strengths_sext_00_arc_cell.json')
+env.vars.load_json('strengths_sext_01_straight.json')
+env.vars.load_json('strengths_sext_02_final_focus.json')
 
 tt = line.get_table(attr=True)
 

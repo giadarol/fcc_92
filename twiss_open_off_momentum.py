@@ -114,24 +114,28 @@ class ActionOffMom(xt.Action):
         spy_r = plt.subplot(2, 2, 4)
 
         spx_l.plot(tw_om['delta_test'], tw_om['mux_l_test'])
+        spx_l.plot(tw_om['delta_test'], tw_om['mux_l_poly'], '--')
         spx_l.set_title(f"dmux = {tw_om['dmux_l']:.3e}, "
                         f"d2mux = {tw_om['d2mux_l']:.3e}, "
                         f"d3mux = {tw_om['d3mux_l']:.3e},\n"
                         f"d4mux = {tw_om['d4mux_l']:.3e}, "
                         f"d5mux = {tw_om['d5mux_l']:.3e}")
         spx_r.plot(tw_om['delta_test'], tw_om['mux_r_test'])
+        spx_r.plot(tw_om['delta_test'], tw_om['mux_r_poly'], '--')
         spx_r.set_title(f"dmux = {tw_om['dmux_r']:.3e}, "
                         f"d2mux = {tw_om['d2mux_r']:.3e}, "
                         f"d3mux = {tw_om['d3mux_r']:.3e},\n"
                         f"d4mux = {tw_om['d4mux_r']:.3e}, "
                         f"d5mux = {tw_om['d5mux_r']:.3e}")
         spy_l.plot(tw_om['delta_test'], tw_om['muy_l_test'])
+        spy_l.plot(tw_om['delta_test'], tw_om['muy_l_poly'], '--')
         spy_l.set_title(f"dmuy = {tw_om['dmuy_l']:.3e}, "
                         f"d2muy = {tw_om['d2muy_l']:.3e}, "
                         f"d3muy = {tw_om['d3muy_l']:.3e},\n"
                         f"d4muy = {tw_om['d4muy_l']:.3e}, "
                         f"d5muy = {tw_om['d5muy_l']:.3e}")
         spy_r.plot(tw_om['delta_test'], tw_om['muy_r_test'])
+        spy_r.plot(tw_om['delta_test'], tw_om['muy_r_poly'], '--')
         spy_r.set_title(f"dmuy = {tw_om['dmuy_r']:.3e}, "
                         f"d2muy = {tw_om['d2muy_r']:.3e}, "
                         f"d3muy = {tw_om['d3muy_r']:.3e},\n"
