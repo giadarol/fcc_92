@@ -32,7 +32,7 @@ class ActionMomentumAcceptance(xt.Action):
             energy_spread=energy_spread,
             delta_initial_values=delta_initial_values)
 
-    def mom_acceptance(self, plot=False):
+    def mom_acceptance(self, plot=False, with_progress=False):
 
         line = self.line
         nemitt_x = self.nemitt_x
@@ -61,7 +61,7 @@ class ActionMomentumAcceptance(xt.Action):
             y_norm=tt_init.y_normalized)
 
         line.config.XTRACK_GLOBAL_XY_LIMIT = self.global_xy_limit
-        line.track(particles, num_turns=self.num_turns) #, with_progress=1)
+        line.track(particles, num_turns=self.num_turns, with_progress=with_progress)
 
         particles.sort(interleave_lost_particles=True)
         lost = particles.state <= 0

@@ -42,5 +42,5 @@ act = ActionMomentumAcceptance(line,
             nemitt_x, nemitt_y, nn_y_r, max_y_r, energy_spread,
             global_xy_limit=global_xy_limit, num_turns=num_turns)
 
-act.mom_acceptance(plot=True)
+act.mom_acceptance(plot=True, with_progress=1)
 plt.show()
