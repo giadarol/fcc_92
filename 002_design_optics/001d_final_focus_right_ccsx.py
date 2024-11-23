@@ -2,19 +2,27 @@ import numpy as np
 import xtrack as xt
 import time
 
+# Needs:
+#  - access targets and vary by name
+#  - automatic tag generation for targets
+#  - add opt.twiss
+#  - env.vars.update
+
+
 env = xt.Environment()
-env.call('../fccee_z_lattice.py')
-env.call('quad_strength_limits.py')
+env.call('fccee_z_parameters.py')
+env.call('fccee_z_elements.py')
+env.call('fccee_z_lattice.py')
+env.call('fccee_z_strengths.py')
 
-env.vars.load_json('strengths_quads_03_ffccsyr.json')
-
-env.call('matching_constraints.py')
-
-line = -env['ccs_yr'] + (-env['ccs_xr'])
+line = env['mccs_yxr']
 
 tt0 = line.get_table(attr=True)
 tt0_quad = tt0.rows[tt0.element_type == 'Quadrupole']
 tt0_sext = tt0.rows[tt0.element_type == 'Sextupole']
+
+tw0 = line.twiss(betx=env['bxip'], bety=env['byip'], strengths=True)
+
 
 kq = {}
 kq['section_c'] = ['kqd07r', 'kqf08r', 'kqd09r', 'kqf10r']
@@ -29,7 +37,8 @@ for kk in kq.keys():
     vary_kq[kk] = []
     for nn in kq[kk]:
         vv = env[nn]
-        vary_kq[kk].append(xt.Vary(nn, step=1e-10, tag=kk)) # Note the small step
+        vary_kq[kk].append(xt.Vary(nn,
+                    limits={False:(-10, 0.), True:(0., 10.)}[vv>=0.], tag=nn))
 vary_all = []
 for kk in kq.keys():
     vary_all += vary_kq[kk]
@@ -66,13 +75,22 @@ tar_end = xt.TargetSet(betx=env['bx_ff_out'], alfx=0.0,
                        dx=env['dx_ff_out'], dpx=0.0,
                        mux=3.0, muy=2.75, at=xt.END)
 
-# Initialize quads with a small strength
-for vv in vary_all:
-    nn = vv.name
-    if env.vars.vary_default[nn]['limits'][1] > 1e-3:
-        env[nn] = 1e-3
-    else:
-        env[nn] = -1e-3
+opt_pant = line.match(
+    solve=False,
+    betx=env['bxip'],
+    bety=env['byip'],
+    targets=[tar_sfm2r, tar_sfx1r, tar_rmat_sext, tar_imag4, tar_rmat_end, tar_end],
+    vary=vary_all
+)
+
+import json
+with open('mccs_yr.json', 'r') as fid:
+    strengths_ccsyr = json.load(fid)
+env.vars(strengths_ccsyr)
+
+# wipe all quads
+for kk in opt_pant.get_knob_values(0).keys():
+    env[kk] = 0.001 * np.sign(env[kk])
 
 # wipe sextupoles
 for kk in ['ksdy1r', 'ksdy2r', 'ksdm1r', 'ksdm1r', 'ksfm2r',
@@ -185,6 +203,8 @@ opt.step(200)
 
 opt_full._step_simplex(1000)
 
-import json
+# Check that the closed twiss is still ok
+# env['ring_full'].twiss4d().plot()
+opt_pant.tag('gianni')
 with open('strengths_quads_04_ffccsxr.json', 'w') as fid:
-    json.dump(opt_full.get_knob_values(-1), fid, indent=1)
+    json.dump(opt_pant.get_knob_values(-1), fid, indent=1)
