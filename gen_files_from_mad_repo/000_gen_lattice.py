@@ -168,6 +168,19 @@ for nn in lattice_parameters:
     else:
         out_lattice_parameters.append(f'env["{nn}"] = {ee}')
 
-with open('fccee_z_lattice_parameters.py', 'w') as fid:
+with open('_part_description.py', 'r') as fid:
+    part_description = [fid.read()]
+
+with open('_part_lattice.py', 'r') as fid:
+    part_lattice = [fid.read()]
+
+with open('fccee_z_lattice.py', 'w') as fid:
     fid.write('\n'.join(
-        at_start_file + out_lattice_parameters + at_end_file))
+        part_description +
+        [''] +
+        at_start_file +
+        ['# Lattice parameters:'] +
+        out_lattice_parameters +
+        out_lattice +
+        part_lattice +
+        at_end_file))
