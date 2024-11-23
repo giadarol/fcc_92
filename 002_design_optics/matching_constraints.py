@@ -21,5 +21,6 @@ env['r34_ccsyr'] = -0.095
 
 env['delta_alfy_ccsx'] = -0.2
 env['dpx_ccxl'] = 1.1e-05
+env["dpx_ccyr"] = 0.0
 
 env['dx_ff_out'] = 0.0
