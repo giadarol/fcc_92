@@ -58,6 +58,7 @@ opt_pant = line.match(
             mux = tw_uu.mux[-1]  * 0.25 + 0.50,
             muy = tw_uu.muy[-1]  * 0.25 + 0.50),
         xt.TargetSet(dx=0, dpx=0, at='qdm6l', weight=1000),
+        xt.TargetSet(dx=0, dpx=0, at='qfm5l', weight=1000),
         xt.TargetSet(bety=xt.GreaterThan(350), at='qfm5l'),
         xt.TargetSet(bety=xt.GreaterThan(600), at='qfm7l'),
         xt.TargetSet(bety=xt.LessThan(600), at='qdm6l'),
