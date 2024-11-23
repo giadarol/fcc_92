@@ -15,3 +15,8 @@ r34_ccsxl = 0.0
 r34_ccsxr = 0.0
 r34_ccsyl = -0.095
 r34_ccsyr = -0.095
+
+delta_alfy_ccsx = -0.2
+dpx_ccxl = 1.1e-05
+
+dx_ff_out = 0.0
