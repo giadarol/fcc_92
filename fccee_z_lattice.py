@@ -383,6 +383,10 @@ env.new('d0', 'drift', length=2.2)
 # rfcavity elements:
 env.new('rfc', 'rfcavity', length=1e-12, harmon=121200.0, lag='(rf_lag) * 360', voltage='(rf_voltage) * 1e6')
 
+# RF frequency
+env["rfc"].frequency = 121200*3306.828357898286
+
+# Ring sections:
 env.new_line(name='cell_u', components=['qd1a', 'dr_01', 'dl1a', 'dr_01', 'qf2a', 'dr_01', 'sf2a', 'dr_01', 'dl2a', 'dr_01', 'sd1a', 'dr_01', 'qd3a', 'dr_01', 'dl2a', 'dr_01', 'sf1a', 'dr_01', 'qf4a', 'dr_01', 'dl2a', 'dr_01', 'sd2a', 'dr_01', 'qd5a', 'dr_01', 'dl3a', 'dr_01', 'qf6a', 'dr_01', 'dl3a', 'dr_01', 'qd5a', 'dr_01', 'sd2a', 'dr_01', 'dl2a', 'dr_01', 'qf4a', 'dr_01', 'sf1a', 'dr_01', 'dl2a', 'dr_01', 'qd3a', 'dr_01', 'sd1a', 'dr_01', 'dl2a', 'dr_01', 'sf2a', 'dr_01', 'qf2a', 'dr_01', 'dl1a', 'dr_01', 'qd1a'])
 env.new_line(name='cell_v', components=['qd1a', 'dr_01', 'dl1a', 'dr_01', 'qf2a', 'dr_01', 'sf4a', 'dr_01', 'dl2a', 'dr_01', 'sd3a', 'dr_01', 'qd3a', 'dr_01', 'dl2a', 'dr_01', 'sf3a', 'dr_01', 'qf4a', 'dr_01', 'dl2a', 'dr_01', 'sd4a', 'dr_01', 'qd5a', 'dr_01', 'dl3a', 'dr_01', 'qf6a', 'dr_01', 'dl3a', 'dr_01', 'qd5a', 'dr_01', 'sd4a', 'dr_01', 'dl2a', 'dr_01', 'qf4a', 'dr_01', 'sf3a', 'dr_01', 'dl2a', 'dr_01', 'qd3a', 'dr_01', 'sd3a', 'dr_01', 'dl2a', 'dr_01', 'sf4a', 'dr_01', 'qf2a', 'dr_01', 'dl1a', 'dr_01', 'qd1a'])
 env.new_line(name='cell_ul', components=['qd1a', 'dr_01', 'dl1a', 'dr_01', 'qf2a', 'dr_01', 'sf2a', 'dr_01', 'dl2a', 'dr_01', 'sd1a', 'dr_01', 'qd3a', 'dr_01', 'dl2a', 'dr_01', 'sf1a', 'dr_01', 'qf4a', 'dr_01', 'dl2a', 'dr_01', 'sd2a', 'dr_01', 'qd5a', 'dr_01', 'dl3a', 'dr_01', 'qf6a', 'dr_01', 'dl3a', 'dr_01', 'qd5a', 'dr_01', 'sd2aul', 'dr_01', 'dl2a', 'dr_01', 'qf4a', 'dr_01', 'sf1aul', 'dr_01', 'dl2a', 'dr_01', 'qd3a', 'dr_01', 'sd1aul', 'dr_01', 'dl2a', 'dr_01', 'sf2aul', 'dr_01', 'qf2a', 'dr_01', 'dl1a', 'dr_01', 'qd1a'])
@@ -440,6 +444,5 @@ env['fcc_quarter'] = (
                     + env['experimental_insertion_l'])
 
 env['fccee_p_ring'] = 4 * env['fcc_quarter']
-
 
 env.vars.default_to_zero=False

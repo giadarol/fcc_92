@@ -78,8 +78,8 @@ at_start_file.append('env.vars.default_to_zero=True')
 at_start_file.append('')
 
 at_end_file = []
-at_end_file.append('')
 at_end_file.append('env.vars.default_to_zero=False')
+at_end_file.append('')
 
 BASE_TYPE_DEFS = '''
 # Base types
@@ -95,15 +95,15 @@ env.new("solenoid", "Solenoid")
 env.new("drift", "Drift")
 '''
 
-out_lattice = []
-out_lattice.append(BASE_TYPE_DEFS)
+out_elements = []
+out_elements.append(BASE_TYPE_DEFS)
 for pp in ele_types:
     if len(tt_ele_dct[pp]) == 0:
         continue
-    out_lattice.append(f'# {pp} elements:')
+    out_elements.append(f'# {pp} elements:')
     for nn in tt_ele_dct[pp].name:
-        out_lattice.append(tt_elements['element_defs', nn])
-    out_lattice.append('')
+        out_elements.append(tt_elements['element_defs', nn])
+    out_elements.append('')
 
 ## Variables
 variables = dct['vars']
@@ -152,7 +152,7 @@ for nn in sorted(list(tt_other.name)):
 
 with open('_tmp_elements.py', 'w') as fid:
     fid.write('\n'.join(
-        at_start_file + out_lattice + at_end_file))
+        at_start_file + out_elements + at_end_file))
 
 with open('_tmp_parameters.py', 'w') as fid:
     fid.write('\n'.join(
@@ -178,6 +178,14 @@ with open('_part_description.py', 'r') as fid:
 with open('_part_lattice.py', 'r') as fid:
     part_lattice = [fid.read()]
 
+# RF frequency
+out_rf_frequency = [
+    '# RF frequency',
+    'env["rfc"].frequency = 121200*3306.828357898286'
+]
+
+
+
 with open('fccee_z_lattice.py', 'w') as fid:
     fid.write('\n'.join(
         part_description +
@@ -185,7 +193,10 @@ with open('fccee_z_lattice.py', 'w') as fid:
         at_start_file +
         ['# Lattice parameters:'] +
         out_lattice_parameters +
-        out_lattice +
+        out_elements +
+        out_rf_frequency +
+        [''] +
+        ['# Ring sections:'] +
         part_lattice +
         at_end_file))
 

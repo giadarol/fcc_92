@@ -203,5 +203,4 @@ env["ksfm2l"] = 0.403
 env["ksfm2r"] = 0.277
 env["ksfx1l"] = 1.015706
 env["ksfx1r"] = 0.408448806312
-
 env.vars.default_to_zero=False
