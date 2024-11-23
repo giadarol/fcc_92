@@ -10,6 +10,11 @@ env['dmux_sfx1r'] = -0.0105
 env['dmuy_sdy1l'] = -8.5e-05
 env['dmuy_sdy1r'] = -0.000101
 
+env["bxmax"] = 275.0
+env["bymax"] = 275.0
+env["bxsc"] = 80.9
+env["bysc"] = 248.7
+
 env['r12_ccsxl'] = -0.1
 env['r12_ccsxr'] = -0.1
 env['r12_ccsyl'] = -0.095
