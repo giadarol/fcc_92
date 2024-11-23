@@ -6,7 +6,7 @@ env = xt.Environment()
 env.call('../fccee_z_lattice.py')
 env.call('quad_strength_limits.py')
 
-import matching_constraints as mc
+env.call('matching_constraints.py')
 
 line = -env['ccs_yl']
 
@@ -39,13 +39,13 @@ tar_sdm1l = xt.TargetSet(betx=xt.LessThan(10.), bety=xt.LessThan(12.),
                          at='sdm1l::0')
 tar_sdy1l = xt.TargetSet(bety=8114.3, betx=371.7,
                          alfy=0., dx=xt.GreaterThan(0.3),
-                         muy=0.75 + mc.dmuy_sdy1l,
+                         muy=0.75 + env['dmuy_sdy1l'],
                          at='sdy1l::1')
 tar_ipimag2 = xt.TargetSet(betx=xt.GreaterThan(60.), alfx=0., alfy=0.,
                            dx=0.302, dpx=0,
                            at='ipimag2')
 tar_rmat_sext = xt.TargetRmatrix(start='sdy1l::1', end='sdy2l::1',
-                                 r12=mc.r12_ccsyl, r34=mc.r34_ccsyl,
+                                 r12=env['r12_ccsyl'], r34=env['r34_ccsyl'],
                                  r33=-1.0, r43=0.0, tol=1e-6, tag='rmat_sext')
 
 # Initialize quads with a small strength

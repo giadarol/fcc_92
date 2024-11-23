@@ -8,7 +8,7 @@ env.call('quad_strength_limits.py')
 
 env.vars.load_json('strengths_quads_01_ffccsyl.json')
 
-import matching_constraints as mc
+env.call('matching_constraints.py')
 
 line = -env['ccs_yl'] + (-env['ccs_xl'])
 
@@ -52,13 +52,13 @@ tar_sfx1l= xt.TargetSet(betx=xt.GreaterThan(1000.),
                      at='sfx1l::1')
 
 tar_rmat_sext = xt.TargetRmatrix(start='sfx1l::1', end='sfx2l::1',
-                        r12=mc.r12_ccsxl, r34=mc.r34_ccsxl,
+                        r12=env['r12_ccsxl'], r34=env['r34_ccsxl'],
                         r11=-1, r33=-1)
 
 tar_imag4 = xt.TargetSet(betx=xt.LessThan(20), bety=xt.LessThan(25.),
-                         alfx=0, alfy=mc.delta_alfy_ccsx,
+                         alfx=0, alfy=env['delta_alfy_ccsx'],
                          dx=xt.GreaterThan(2e-3),
-                         dpx=mc.dpx_ccxl,
+                         dpx=env['dpx_ccxl'],
                          at='ipimag4')
 
 tar_rmat_end = xt.TargetRmatrix(start=xt.START, end=xt.END,
@@ -66,7 +66,7 @@ tar_rmat_end = xt.TargetRmatrix(start=xt.START, end=xt.END,
 
 tar_end = xt.TargetSet(betx=env['bx_ff_out'], alfx=0.0,
                        bety=env['by_ff_out'], alfy = 0.0,
-                       dx=mc.dx_ff_out, dpx=0.0,
+                       dx=env['dx_ff_out'], dpx=0.0,
                        mux=3.0, muy=2.75, at=xt.END)
 
 
