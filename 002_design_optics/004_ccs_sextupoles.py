@@ -269,40 +269,33 @@ opt.step(5)
 
 tw_om_chrom3 = twiss_off_momentum(section=section)
 
-# opt_chrom5_left = section.match(
-#     name='chrom5_l',
-#     solve=False,
-#     init=twinit_cell_1_r,
-#     compute_chromatic_properties=True,
-#     vary=xt.VaryList(['kdec1l', 'kdecfl', 'kdecdl'], step=1.),
-#     targets=[
-#         act.target('d5mux_l', 0, tol=1e6),
-#         act.target('d5muy_l', 0, tol=1e6),
-#     ] + list(opt_chrom3_x_left.targets) + list(opt_chrom3_y_left.targets)
-# )
-# opt = opt_chrom5_left
-# opt.step(10)
+opt_chrom5_left = section.match(
+    name='chrom5_l',
+    solve=False,
+    init=twinit_cell_1_r,
+    compute_chromatic_properties=True,
+    vary=xt.VaryList(['kdec1l', 'kdecfl', 'kdecdl'], step=1., limits=[-6000, 6000]),
+    targets=[
+        act.target('d5mux_l', 0, tol=1e6),
+        act.target('d5muy_l', 0, tol=1e6),
+    ] + list(opt_chrom3_x_left.targets) + list(opt_chrom3_y_left.targets)
+)
+opt = opt_chrom5_left
+opt.run_direct(100)
 
-# opt_chrom5_right = section.match(
-#     name='chrom5_r',
-#     solve=False,
-#     init=twinit_cell_2_l,
-#     compute_chromatic_properties=True,
-#     vary=xt.VaryList(['kdec1r', 'kdecfr', 'kdecdr'], step=1., limits=[-3e3, 3e3]),
-#     targets=[
-#         act.target('d5mux_r', 0, tol=1e6, weight=1e-5),
-#         act.target('d5muy_r', 0, tol=1e6, weight=1e-5),
-#     ] + list(opt_chrom3_x_right.targets) + list(opt_chrom3_y_right.targets)
-# )
-# opt = opt_chrom5_right
-# opt.step(3)
-
-# env['kdec1r'] = line0['kdec1r']
-# env['kdecfr'] = line0['kdecfr']
-# env['kdecdr'] = line0['kdecdr']
-
-
-# prrrr
+opt_chrom5_right = section.match(
+    name='chrom5_r',
+    solve=False,
+    init=twinit_cell_2_l,
+    compute_chromatic_properties=True,
+    vary=xt.VaryList(['kdec1r', 'kdecfr', 'kdecdr'], step=1., limits=[-3e3, 3e3]),
+    targets=[
+        act.target('d5mux_r', 0, tol=1e6, weight=1e-5),
+        act.target('d5muy_r', 0, tol=1e6, weight=1e-5),
+    ] + list(opt_chrom3_x_right.targets) + list(opt_chrom3_y_right.targets)
+)
+opt = opt_chrom5_right
+opt.run_direct(100)
 
 opt_chrom3_x_left.run_direct(10)
 opt_chrom3_y_left.run_direct(10)
@@ -372,6 +365,18 @@ spy_l.plot(tw_om_final_full['delta_test'], tw_om_final_full['muy_l_test'])
 spy_r.plot(tw_om_final_full['delta_test'], tw_om_final_full['muy_r_test'])
 # spy_r.plot(tw0_om_full['delta_test'], tw0_om_full['muy_r_test'], '--k')
 
+opt_w_left.tag('final')
+opt_w_right.tag('final')
+opt_chrom3_x_left.tag('final')
+opt_chrom3_y_left.tag('final')
+opt_chrom3_x_right.tag('final')
+opt_chrom3_y_right.tag('final')
+opt_ddx_left.tag('final')
+opt_ddx_right.tag('final')
+opt_dqxy.tag('final')
+opt_chrom5_left.tag('final')
+opt_chrom5_right.tag('final')
+
 import json
 out = {}
 out.update(vars_ds_sextupoles)
@@ -383,6 +388,9 @@ out.update(opt_chrom3_x_right.get_knob_values())
 out.update(opt_chrom3_y_right.get_knob_values())
 out.update(opt_ddx_left.get_knob_values())
 out.update(opt_ddx_right.get_knob_values())
+out.update(opt_dqxy.get_knob_values())
+out.update(opt_chrom5_left.get_knob_values())
+out.update(opt_chrom5_right.get_knob_values())
 
 tt_to_save = env.vars.get_table().rows[list(out.keys())]
 out.update(tt_to_save.to_dict())
