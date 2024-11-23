@@ -3,7 +3,7 @@ import xobjects as xo
 from cpymad.madx import Madx
 
 mad = Madx()
-mad.call('../fcc-ee-lattice/lattices/z/fccee_z.seq')
+mad.call('../../fcc-ee-lattice/lattices/z/fccee_z.seq')
 mad.beam()
 mad.use('ring_full')
 
