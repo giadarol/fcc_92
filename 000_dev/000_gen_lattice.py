@@ -155,3 +155,12 @@ with open('fccee_z_strengths.py', 'w') as fid:
 with open('fccee_z_parameters.py', 'w') as fid:
     fid.write('\n'.join(out_other))
 
+# Separate lattice parameters from other parameters
+env = xt.Environment()
+env.call('fccee_z_elements.py')
+env.call('fccee_z_parameters.py')
+
+lattice_parameters = []
+for nn in tt_other.name:
+    if 'element_refs' in str(env.ref[nn]._find_dependant_targets()):
+        lattice_parameters.append(nn)
