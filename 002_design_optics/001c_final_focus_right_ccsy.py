@@ -13,8 +13,6 @@ tt0 = line.get_table(attr=True)
 tt0_quad = tt0.rows[tt0.element_type == 'Quadrupole']
 tt0_sext = tt0.rows[tt0.element_type == 'Sextupole']
 
-tw0 = line.twiss(betx=env['bxip'], bety=env['byip'], strengths=True)
-
 kq = {}
 kq['triplet'] = ['kqd0ar', 'kqd0br', 'kqf1ar']
 kq['section_a'] = ['kqd01r', 'kqf02r', 'kqd02r']
