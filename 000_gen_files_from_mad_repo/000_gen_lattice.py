@@ -158,10 +158,15 @@ with open('_tmp_parameters.py', 'w') as fid:
     fid.write('\n'.join(
         at_start_file + out_other + at_end_file))
 
+with open('_tmp_strengths.py', 'w') as fid:
+    fid.write('\n'.join(
+        at_start_file + out_strengths + at_end_file))
+
 # Separate lattice parameters from other parameters
 env = xt.Environment()
 env.call('_tmp_elements.py')
 env.call('_tmp_parameters.py')
+env.call('_tmp_strengths.py')
 
 lattice_parameters = []
 for nn in tt_other.name:

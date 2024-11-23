@@ -25,6 +25,7 @@ tw6d.plot()
 tw6d.plot('wx_chrom wy_chrom')
 tw6d.plot('ddx')
 
+prrrr
 
 from momentum_acceptance import ActionMomentumAcceptance
 nemitt_x = 6.33e-5

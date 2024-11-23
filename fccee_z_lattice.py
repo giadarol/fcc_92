@@ -59,10 +59,15 @@ env["b6fl"] = 3.7217
 env["b6fr"] = 1.4881
 env["b7fl"] = 3.146938
 env["b7fr"] = 0.8658736
+env["bx_ff_out"] = 66.667
 env["bxfr"] = 0.03695179
+env["bxip"] = 0.1
 env["bxyff"] = "((1.0 + (bxfr / 3.0)) - (byfr / 6.0))"
+env["by_ff_out"] = 1600.0
 env["byfr"] = -0.003034615
+env["byip"] = 0.0007
 env["clength_adj"] = 1.467
+env["cs_frac"] = 0.0
 env["dang0"] = 0.0
 env["dd56"] = -0.004801018
 env["dl_len"] = 28.94695
@@ -87,6 +92,7 @@ env["lq4"] = 2.4
 env["rf_lag"] = 0.4
 env["rf_on"] = 1.0
 env["rf_voltage"] = "(50.0 * rf_on)"
+env["sxt_on"] = 1.0
 env["theta_cross"] = 0.03
 
 # Base types
