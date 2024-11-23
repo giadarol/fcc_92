@@ -65,11 +65,11 @@ ele_types = ['marker', 'sbend', 'rbend', 'quadrupole', 'sextupole',
 for pp in ele_types:
     tt_ele_dct[pp] = tt_elements.rows[tt_elements.parent == pp]
 
-other = set(list(tt_elements.name))
+parameters = set(list(tt_elements.name))
 for pp in tt_ele_dct:
-    other = other.difference(set(list(tt_ele_dct[pp].name)))
+    parameters = parameters.difference(set(list(tt_ele_dct[pp].name)))
 
-assert len(other) == 0
+assert len(parameters) == 0
 
 at_start_file = []
 at_start_file.append('import xtrack as xt')
@@ -119,8 +119,8 @@ tt_vars = xt.Table({
 })
 
 tt_strengths = tt_vars.rows['k.*']
-other = sorted(list(set(list(tt_vars.name)) - set(list(tt_strengths.name))))
-tt_other = tt_vars.rows[other]
+parameters = sorted(list(set(list(tt_vars.name)) - set(list(tt_strengths.name))))
+tt_other = tt_vars.rows[parameters]
 
 out_strengths = []
 for nn in sorted(list(tt_strengths.name)):
@@ -138,22 +138,20 @@ for nn in sorted(list(tt_other.name)):
     else:
         out_other.append(f'env["{nn}"] = {ee}')
 
-with open('fccee_z_elements.py', 'w') as fid:
+with open('_tmp_elements.py', 'w') as fid:
     fid.write('\n'.join(
         at_start_file + out_lattice + at_end_file))
 
-with open('fccee_z_strengths.py', 'w') as fid:
-    fid.write('\n'.join(
-        at_start_file + out_strengths + at_end_file))
 
-with open('fccee_z_parameters.py', 'w') as fid:
+
+with open('_tmp_parameters.py', 'w') as fid:
     fid.write('\n'.join(
         at_start_file + out_other + at_end_file))
 
 # Separate lattice parameters from other parameters
 env = xt.Environment()
-env.call('fccee_z_elements.py')
-env.call('fccee_z_parameters.py')
+env.call('_tmp_elements.py')
+env.call('_tmp_parameters.py')
 
 lattice_parameters = []
 for nn in tt_other.name:
@@ -184,3 +182,7 @@ with open('fccee_z_lattice.py', 'w') as fid:
         out_lattice +
         part_lattice +
         at_end_file))
+
+with open('fccee_z_strengths.py', 'w') as fid:
+    fid.write('\n'.join(
+        at_start_file + out_strengths + at_end_file))
