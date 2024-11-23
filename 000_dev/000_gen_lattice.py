@@ -164,3 +164,20 @@ lattice_parameters = []
 for nn in tt_other.name:
     if 'element_refs' in str(env.ref[nn]._find_dependant_targets()):
         lattice_parameters.append(nn)
+
+out_lattice_parameters = []
+out_lattice_parameters.append('import xtrack as xt')
+out_lattice_parameters.append('env = xt.get_environment()')
+out_lattice_parameters.append('env.vars.default_to_zero=True')
+out_lattice_parameters.append('')
+for nn in lattice_parameters:
+    ee = tt_vars['expr', nn]
+    if isinstance(ee, str):
+        out_lattice_parameters.append(f'env["{nn}"] = "{ee}"')
+    else:
+        out_lattice_parameters.append(f'env["{nn}"] = {ee}')
+out_lattice_parameters.append('')
+out_lattice_parameters.append('env.vars.default_to_zero=False')
+
+with open('fccee_z_lattice_parameters.py', 'w') as fid:
+    fid.write('\n'.join(out_lattice_parameters))
