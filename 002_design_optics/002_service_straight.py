@@ -109,6 +109,8 @@ opt._step_simplex(1000)
 opt.step(50)
 opt._step_simplex(10000)
 
+opt_full.tag('final')
+
 import json
 with open('strengths_quads_06_straight.json', 'w') as fid:
     json.dump(opt_full.get_knob_values(-1), fid, indent=1)

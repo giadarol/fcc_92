@@ -212,6 +212,8 @@ opt_full.target_mismatch(ret=True).show()
 tt = line.get_table(attr=True)
 tt_quad = tt.rows[tt.element_type == 'Quadrupole']
 
+opt_full.tag('final')
+
 import json
 with open('strengths_quads_02_ffccsxl.json', 'w') as fid:
     json.dump(opt_full.get_knob_values(-1), fid, indent=1)

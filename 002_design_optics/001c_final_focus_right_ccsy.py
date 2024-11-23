@@ -149,6 +149,8 @@ opt._step_simplex(10000)
 
 opt.plot()
 
+opt_full.tag('final')
+
 import json
 with open('strengths_quads_03_ffccsyr.json', 'w') as fid:
     json.dump(opt_full.get_knob_values(-1), fid, indent=1)

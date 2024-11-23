@@ -95,6 +95,8 @@ env['kqdm8r'] = 'kqdm8l'
 
 tt_kqright = line.vars.get_table().rows[kq_right]
 
+opt_full.tag('final')
+
 import json
 out = {}
 out.update(opt_full.get_knob_values())

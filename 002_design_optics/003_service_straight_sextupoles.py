@@ -2,7 +2,6 @@ import xtrack as xt
 
 env = xt.Environment()
 env.call('../fccee_z_lattice.py')
-env.call('quad_strength_limits.py')
 
 env.vars.load_json('strengths_quads_00_arc_cell.json')
 env.vars.load_json('strengths_quads_01_ffccsyl.json')

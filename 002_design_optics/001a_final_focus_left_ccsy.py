@@ -155,5 +155,7 @@ opt.plot()
 
 import json
 
+opt_full.tag('final')
+
 with open('strengths_quads_01_ffccsyl.json', 'w') as fid:
     json.dump(opt_full.get_knob_values(-1), fid, indent=1)
