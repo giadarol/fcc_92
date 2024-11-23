@@ -6,7 +6,7 @@ from xtrack.mad_parser.loader import MadxLoader, get_params
 parser = MadxParser()
 loader = MadxLoader()
 
-fname = '../fcc-ee-lattice/lattices/z/fccee_z.seq'
+fname = '../../fcc-ee-lattice/lattices/z/fccee_z.seq'
 
 with open(fname, 'r') as fid:
     lines = fid.readlines()
