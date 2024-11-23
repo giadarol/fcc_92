@@ -17,8 +17,7 @@ tw4d = line.twiss4d()
 # tw4d.plot('wx_chrom wy_chrom')
 # tw4d.plot('ddx')
 
-env['rfc'].frequency = 121200*3306.828357898286
-# Remove lag (radiatio is off)
+# Remove lag (radiation is off)
 env['rf_lag'] = 0.5
 
 tw6d = line.twiss()

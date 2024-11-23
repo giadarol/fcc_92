@@ -1,5 +1,5 @@
 ####################
-# FCC-ee z lattice #
+# FCC-ee Z lattice #
 ####################
 
 # Name convention:

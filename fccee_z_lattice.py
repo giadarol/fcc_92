@@ -1,5 +1,5 @@
 ####################
-# FCC-ee z lattice #
+# FCC-ee Z lattice #
 ####################
 
 # Name convention:
@@ -29,6 +29,9 @@
 import xtrack as xt
 env = xt.get_environment()
 env.vars.default_to_zero=True
+
+# Reference particle
+env.particle_ref = xt.Particles(mass0=xt.ELECTRON_MASS_EV, energy0=45.6e9)
 
 # Lattice parameters:
 env["adf1"] = 0.4

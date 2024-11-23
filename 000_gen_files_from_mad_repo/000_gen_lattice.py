@@ -184,13 +184,19 @@ out_rf_frequency = [
     'env["rfc"].frequency = 121200*3306.828357898286'
 ]
 
-
+# Reference particle
+out_ref_particle = [
+    '# Reference particle',
+    'env.particle_ref = xt.Particles(mass0=xt.ELECTRON_MASS_EV, energy0=45.6e9)'
+]
 
 with open('fccee_z_lattice.py', 'w') as fid:
     fid.write('\n'.join(
         part_description +
         [''] +
         at_start_file +
+        out_ref_particle +
+        [''] +
         ['# Lattice parameters:'] +
         out_lattice_parameters +
         out_elements +
