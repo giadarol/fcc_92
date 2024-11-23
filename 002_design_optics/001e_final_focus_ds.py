@@ -1,17 +1,9 @@
 import numpy as np
 import xtrack as xt
 
-# Needs:
-#  - access targets and vary by name
-#  - automatic tag generation for targets
-#  - add opt.twiss
-#  - env.vars.update
-
 env = xt.Environment()
-env.call('fccee_z_parameters.py')
-env.call('fccee_z_elements.py')
-env.call('fccee_z_lattice.py')
-env.call('fccee_z_strengths.py')
+env.call('../fccee_z_lattice.py')
+env.call('quad_strength_limits.py')
 
 # Load cell strengths from my match
 env.vars.load_json('strengths_quads_00_arc_cell.json')
@@ -22,7 +14,7 @@ tt0 = line.get_table(attr=True)
 tt0_quad = tt0.rows[tt0.element_type == 'Quadrupole']
 tt0_sext = tt0.rows[tt0.element_type == 'Sextupole']
 
-tw_uu = env['arc_uu'].twiss4d()
+tw_uu = (2 * env['cell_u']).twiss4d()
 
 kq = {}
 kq['uffl'] = [
@@ -35,15 +27,12 @@ for kk in kq.keys():
     vary_kq[kk] = []
     for nn in kq[kk]:
         vv = env[nn]
-        vary_kq[kk].append(xt.Vary(nn, step=1e-6,
-                    limits={False:(-10, 0.), True:(0., 10.)}[vv>=0.], tag=kk))
+        vary_kq[kk].append(xt.Vary(nn, step=1e-6, tag=kk)) # Note the small step
+vary_all = []
+for kk in kq.keys():
+    vary_all += vary_kq[kk]
 
-tw0 = line.twiss(
-    betx=tw_uu.betx[0], bety=tw_uu.bety[0],
-    alfx=tw_uu.alfx[0], alfy=tw_uu.alfy[0],
-    dx=tw_uu.dx[0], dpx=tw_uu.dpx[0])
-
-opt_pant = line.match(
+opt_full = line.match(
     solve=False,
     method='4d',
     vary=vary_kq['uffl'],
@@ -70,11 +59,18 @@ opt_pant = line.match(
     ],
 )
 
-# wipe all quads
-for kk in opt_pant.get_knob_values(0).keys():
-    env[kk] = 0.001 * np.sign(env[kk])
+# Initialize quads with a small strength
+for vv in vary_all:
+    nn = vv.name
+    if env.vars.vary_default[nn]['limits'][1] > 1e-3:
+        env[nn] = 1e-3
+    else:
+        env[nn] = -1e-3
 
-opt_end = opt_pant.clone()
+opt_end = opt_full.clone()
+opt_end.targets['END_mux'].weight = 1000
+opt_end.targets['END_muy'].weight = 1000
+
 opt = opt_end
 opt.step(50)
 opt._step_simplex(1000)
@@ -99,11 +95,9 @@ env['kqdm8r'] = 'kqdm8l'
 
 tt_kqright = line.vars.get_table().rows[kq_right]
 
-opt_pant.tag('gianni')
-
 import json
 out = {}
-out.update(opt_pant.get_knob_values())
+out.update(opt_full.get_knob_values())
 out.update(tt_kqright.to_dict())
 
 with open('strengths_quads_05_ffds_lr.json', 'w') as fid:

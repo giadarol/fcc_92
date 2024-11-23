@@ -1,6 +1,5 @@
 import numpy as np
 import xtrack as xt
-import time
 
 env = xt.Environment()
 env.call('../fccee_z_lattice.py')
