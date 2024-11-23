@@ -118,31 +118,41 @@ tt_vars = xt.Table({
     'expr': np.array(v_expr),
 })
 
+# Identify expressions
+env_vars = xt.Environment()
+env_vars.vars.default_to_zero = True
+for nn in tt_vars.name:
+    env_vars[nn] = tt_vars['expr', nn]
+tt_env_vars = env_vars.vars.get_table()
+is_expr = [(tt_env_vars['expr', nn] is not None) for nn in tt_vars.name]
+tt_vars['is_expr'] = np.array(is_expr)
+
+out_statement = []
+for nn in tt_vars.name:
+    if tt_vars['is_expr', nn]:
+        out_statement.append(f'env["{nn}"] = "{tt_vars["expr", nn]}"')
+    else:
+        out_statement.append(f'env["{nn}"] = {tt_vars["expr", nn]}')
+
+tt_vars['statement'] = np.array(out_statement)
+
+
 tt_strengths = tt_vars.rows['k.*']
 parameters = sorted(list(set(list(tt_vars.name)) - set(list(tt_strengths.name))))
 tt_other = tt_vars.rows[parameters]
 
+
 out_strengths = []
 for nn in sorted(list(tt_strengths.name)):
-    ee = tt_vars['expr', nn]
-    if isinstance(ee, str):
-        out_strengths.append(f'env["{nn}"] = "{ee}"')
-    else:
-        out_strengths.append(f'env["{nn}"] = {ee}')
+    out_strengths.append(tt_strengths['statement', nn])
 
 out_other = []
 for nn in sorted(list(tt_other.name)):
-    ee = tt_vars['expr', nn]
-    if isinstance(ee, str):
-        out_other.append(f'env["{nn}"] = "{ee}"')
-    else:
-        out_other.append(f'env["{nn}"] = {ee}')
+    out_other.append(tt_other['statement', nn])
 
 with open('_tmp_elements.py', 'w') as fid:
     fid.write('\n'.join(
         at_start_file + out_lattice + at_end_file))
-
-
 
 with open('_tmp_parameters.py', 'w') as fid:
     fid.write('\n'.join(
@@ -160,11 +170,7 @@ for nn in tt_other.name:
 
 out_lattice_parameters = []
 for nn in lattice_parameters:
-    ee = tt_vars['expr', nn]
-    if isinstance(ee, str):
-        out_lattice_parameters.append(f'env["{nn}"] = "{ee}"')
-    else:
-        out_lattice_parameters.append(f'env["{nn}"] = {ee}')
+    out_lattice_parameters.append(tt_other['statement', nn])
 
 with open('_part_description.py', 'r') as fid:
     part_description = [fid.read()]
@@ -193,11 +199,7 @@ other_parameters = sorted(list(
                         - set(list(tt_strengths.name))))
 out_other_parameters = []
 for nn in other_parameters:
-    ee = tt_vars['expr', nn]
-    if isinstance(ee, str):
-        out_other_parameters.append(f'env["{nn}"] = "{ee}"')
-    else:
-        out_other_parameters.append(f'env["{nn}"] = {ee}')
+    out_other_parameters.append(tt_vars['statement', nn])
 
 with open('fccee_z_other_parameters.py', 'w') as fid:
     fid.write('\n'.join(
