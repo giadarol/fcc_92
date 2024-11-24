@@ -132,20 +132,15 @@ opt.enable(target='rmat_sext', vary='yquads')
 opt.step(100)
 opt.enable(target=True, vary=True)
 
-# Refine the phase at sdy1r
-opt.disable(target=True, vary=True)
-opt.enable(target='sdy1r.*', vary=['section_b'])
-opt.step(100)
-opt.enable(target=True, vary=True)
-
 # Full optimizer
+
 opt_full = opt_imag2_with_qy.clone(name='full',
                         add_targets=opt_triplet.targets,
                         add_vary=opt_triplet.vary)
 opt = opt_full
 opt.enable(target=True, vary=True)
-opt.targets[3].weight = 1000
-opt.targets[9].weight = 1000
+opt.targets['sdy1l::1_muy'].weight = 1000
+opt.targets['ipimag2_dpx'].weight = 1000
 opt.step(100)
 
 # To get the fine digits
