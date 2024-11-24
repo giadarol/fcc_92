@@ -7,45 +7,27 @@ env.call('quad_strength_limits.py')
 
 env.call('matching_constraints.py')
 
+# Load cell strengths from previous match
+env.vars.load_json('strengths_quads_00_arc_cell.json')
+
 line = env['cell_u']
 
 tt0 = line.get_table(attr=True)
 tt0_quad = tt0.rows[tt0.element_type == 'Quadrupole']
 tt0_sext = tt0.rows[tt0.element_type == 'Sextupole']
 
-
-kq = {}
-kq['cell'] = ['kqd1', 'kqf2', 'kqd3', 'kqf4', 'kqd5', 'kqf6']
-
 ks = {}
 ks['cell'] = ['ksffam1', 'ksffam2', 'ksdfam1', 'ksdfam2']
 
 # Build vary objects keeping the initial signs
-vary_kq = {}
-for kk in kq.keys():
-    vary_kq[kk] = []
-    for nn in kq[kk]:
-        vary_kq[kk].append(xt.Vary(nn, step=1e-6, tag=kk))
-
 vary_ks = {}
 for kk in ks.keys():
     vary_ks[kk] = []
     for nn in ks[kk]:
         vary_ks[kk].append(xt.Vary(nn, step=1e-4, tag=kk))
 vary_all = []
-for kk in kq.keys():
-    vary_all += vary_kq[kk]
-for kk in kq.keys():
+for kk in ks.keys():
     vary_all += vary_ks[kk]
-
-tar_mu = xt.TargetSet(at=xt.END, mux=env['muxu'], muy=env['muyu'])
-tar_dx = xt.Target(
-    lambda tw: tw.rows['qf.*']['dx'].std(), xt.LessThan(0.001), tag='dx', weight=1000)
-tar_betx = xt.Target(
-    lambda tw: tw.rows['qf.*']['betx'].std(), xt.LessThan(0.1), tag='betx')
-tar_bety = xt.Target(lambda tw: tw.rows[['qd3a::0', 'qd5a::0', 'qd5a::1', 'qd3a::1', 'qd1a::1']]['bety'].std(),
-                     xt.LessThan(0.1), tag='bety')
-tar_chrom = xt.TargetSet(dqx=env['dqx_cell'], dqy=env['dqy_cell'])
 
 # Redefine sextupole circuits
 env.vars.default_to_zero = True
@@ -59,33 +41,11 @@ env['ksd3'] = 'ksdfam1'
 env['ksd4'] = 'ksdfam2'
 env.vars.default_to_zero = False
 
-# Put a small strength on quadrupoles and sextupoles
-for kk in kq['cell']:
-    if env.vars.vary_default[kk]['limits'][0] == 0:
-        env[kk] = 0.01
-    else:
-        env[kk] = -0.01
-
-opt_quads = line.match(
-    solve=False,
-    method='4d',
-    vary=vary_kq['cell'],
-    targets=[tar_mu, tar_betx, tar_bety, tar_dx]
-)
-opt = opt_quads
-opt.step(10)
-opt._step_simplex(100)
-opt.step(20)
-opt._step_simplex(100, xatol=1e-8, fatol=1e-10)
-opt.disable(target='bet.*')
-opt.step(20)
-
-import json
-with open('strengths_quads_00_arc_cell.json', 'w') as fid:
-    json.dump(opt_quads.get_knob_values(-1), fid)
+tar_chrom = xt.TargetSet(dqx=env['dqx_cell'], dqy=env['dqy_cell'])
 
 # Match chromaticity
 opt_chrom = line.match(
+    name='linear chromaticity',
     solve=False,
     method='4d',
     vary=vary_ks['cell'],
@@ -99,9 +59,10 @@ line_starfish = 3*120 * env['cell_u']
 
 # Put the fractional tune on 0.2
 opt_tune_star = line_starfish.match(
+    name='tune for starfish',
     solve=False,
     method='4d',
-    vary=vary_kq['cell'],
+    vary=xt.VaryList(['kqd1', 'kqf2', 'kqd3', 'kqf4', 'kqd5', 'kqf6'], step=1e-6),
     targets=xt.TargetSet(qx=254.2, qy=222.2)
 )
 opt = opt_tune_star
@@ -188,6 +149,7 @@ class ActionStarfish(xt.Action):
 
 act = ActionStarfish()
 opt_starfish = line.match(
+    name='starfish',
     solve=False,
     method='4d',
     vary=vary_ks['cell'],
@@ -204,6 +166,7 @@ sext_strengths = ['ksf1', 'ksf2', 'ksf3', 'ksf4',
 out.update(env.vars.get_table().rows[sext_strengths].to_dict())
 out.update(opt_starfish.get_knob_values(-1))
 
+import json
 with open('strengths_sext_00_arc_cell.json', 'w') as fid:
     json.dump(out, fid, indent=2)
 
