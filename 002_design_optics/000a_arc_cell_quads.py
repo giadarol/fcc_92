@@ -14,49 +14,34 @@ tt0_quad = tt0.rows[tt0.element_type == 'Quadrupole']
 tt0_sext = tt0.rows[tt0.element_type == 'Sextupole']
 
 
-kq = {}
-kq['cell'] = ['kqd1', 'kqf2', 'kqd3', 'kqf4', 'kqd5', 'kqf6']
+kq_names = ['kqd1', 'kqf2', 'kqd3', 'kqf4', 'kqd5', 'kqf6']
 
-# Build vary objects keeping the initial signs
-vary_kq = {}
-for kk in kq.keys():
-    vary_kq[kk] = []
-    for nn in kq[kk]:
-        vary_kq[kk].append(xt.Vary(nn, step=1e-6, tag=kk))
+line['kqd1'] = -1e-2
+line['kqf2'] = 1e-2
+line['kqd3'] = -1e-2
+line['kqf4'] = 1e-2
+line['kqd5'] = -1e-2
+line['kqf6'] = 1e-2
 
-vary_all = []
-for kk in kq.keys():
-    vary_all += vary_kq[kk]
-
-tar_mu = xt.TargetSet(at=xt.END, mux=env['muxu'], muy=env['muyu'])
-tar_dx = xt.Target(
-    lambda tw: tw.rows['qf.*']['dx'].std(), xt.LessThan(0.001), tag='dx', weight=1000)
-tar_betx = xt.Target(
-    lambda tw: tw.rows['qf.*']['betx'].std(), xt.LessThan(0.1), tag='betx')
-tar_bety = xt.Target(lambda tw: tw.rows[['qd3a::0', 'qd5a::0', 'qd5a::1', 'qd3a::1', 'qd1a::1']]['bety'].std(),
-                     xt.LessThan(0.1), tag='bety')
-
-# Put a small strength on quadrupoles
-for kk in kq['cell']:
-    if env.vars.vary_default[kk]['limits'][0] == 0:
-        env[kk] = 0.01
-    else:
-        env[kk] = -0.01
-
-opt_quads = line.match(
+opt_phase = line.match(
     solve=False,
     method='4d',
-    vary=vary_kq['cell'],
-    targets=[tar_mu, tar_betx, tar_bety, tar_dx]
+    vary=xt.VaryList(kq_names, step=1e-4),
+    targets=xt.TargetSet(mux=env['muxu'], muy=env['muyu'], at=xt.END, tol=1e-6)
 )
-opt = opt_quads
-opt.step(10)
-opt.run_simplex(100)
-opt.step(20)
-opt.run_simplex(100, xatol=1e-8, fatol=1e-10)
-opt.disable(target='bet.*')
-opt.step(20)
+opt_phase.step(10)
 
-import json
-with open('strengths_quads_00_arc_cell.json', 'w') as fid:
-    json.dump(opt_quads.get_knob_values(-1), fid)
+qf_entry = ['qf2a::0', 'qf4a::0', 'qf6a',    'qf4a::1', 'qf2a::1']
+qd_entry = ['qd3a::0', 'qd5a::0', 'qd5a::1', 'qd3a::1', 'qd1a::1']
+
+opt_cell = opt_phase.clone(name='phase + peaks',
+    add_targets=[
+        xt.Target(lambda tw: np.std(tw.rows[qf_entry].dx),   xt.LessThan(0.001), tag='dx',   tol=1e-3, weight=1000),
+        xt.Target(lambda tw: np.std(tw.rows[qd_entry].bety), xt.LessThan(0.5), tag='bety', tol=1e-3, weight=1),
+        xt.Target(lambda tw: np.std(tw.rows[qf_entry].betx), xt.LessThan(0.5), tag='betx', tol=1e-3, weight=1),
+])
+opt = opt_cell
+opt.run_simplex(1000, fatol=1e-10, xatol=1e-3)
+
+opt_cell.tag('final')
+xt.json.dump(opt_cell.get_knob_values(-1), 'strengths_quads_00_arc_cell.json')
