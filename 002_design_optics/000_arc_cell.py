@@ -39,9 +39,11 @@ for kk in kq.keys():
     vary_all += vary_ks[kk]
 
 tar_mu = xt.TargetSet(at=xt.END, mux=env['muxu'], muy=env['muyu'])
-tar_dx = xt.Target(lambda tw: tw.rows['qf.*']['dx'].std(), xt.LessThan(0.001), tag='dx', weight=1000)
-tar_betx = xt.Target(lambda tw: tw.rows['qf.*']['betx'].std(), xt.LessThan(0.1), tag='betx')
-tar_bety = xt.Target(lambda tw: tw.rows[['qd3a::0', 'qd5a::0', 'qd5a::1', 'qd3a::1','qd1a::1']]['bety'].std(), 
+tar_dx = xt.Target(
+    lambda tw: tw.rows['qf.*']['dx'].std(), xt.LessThan(0.001), tag='dx', weight=1000)
+tar_betx = xt.Target(
+    lambda tw: tw.rows['qf.*']['betx'].std(), xt.LessThan(0.1), tag='betx')
+tar_bety = xt.Target(lambda tw: tw.rows[['qd3a::0', 'qd5a::0', 'qd5a::1', 'qd3a::1', 'qd1a::1']]['bety'].std(),
                      xt.LessThan(0.1), tag='bety')
 tar_chrom = xt.TargetSet(dqx=env['dqx_cell'], dqy=env['dqy_cell'])
 
