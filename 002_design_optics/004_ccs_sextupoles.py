@@ -1,9 +1,7 @@
 import xtrack as xt
 import numpy as np
 
-import sys
-sys.path.append('../dev')
-from twiss_open_off_momentum import twiss_off_momentum, ActionOffMom
+from local_nl_chromaticity import LocalNonLinearChromaticity
 
 # Gianni's machine
 env = xt.Environment()
@@ -39,7 +37,7 @@ tt_mult_before = env.vars.get_table().rows['koct.*|kdec.*']
 for kk in tt_mult_before.name:
     env[kk] = 0.
 
-act = ActionOffMom(section=section)
+act = LocalNonLinearChromaticity(section=section)
 
 tar_w_left = xt.TargetSet(wx_chrom=0, wy_chrom=0, at='ip_mid')
 tar_w_right = xt.TargetSet(wx_chrom=0, wy_chrom=0, at='ip_mid')
@@ -155,7 +153,7 @@ opt_close_w = section.match(
 opt = opt_close_w
 opt.step(20)
 
-tw_om = twiss_off_momentum(section=section)
+tw_om = act.run()
 
 # Match third order chromaticity
 opt_chrom3_y_left = section.match(
@@ -219,7 +217,7 @@ opt = opt_chrom3_x_right
 opt.run_direct(20)
 
 
-tw_corr_om = twiss_off_momentum(section=section)
+tw_corr_om = act.run()
 
 opt_ddx_left = section.match(
     name='ddx_left',
@@ -259,7 +257,7 @@ opt_close_w_and_ddx = opt_close_w.clone(name='close_w_and_ddx',
                          ddx=twinit_cell_1_r.ddx,
                          ddpx=twinit_cell_1_r.ddpx,
                          at=xt.END),
-                                ])
+                    ])
 opt = opt_close_w_and_ddx
 opt.step(5)
 
@@ -267,7 +265,7 @@ opt.step(5)
 # opt.disable(target='ip.*')
 # opt.step(5)
 
-tw_om_chrom3 = twiss_off_momentum(section=section)
+tw_om_chrom3 = act.run()
 
 opt_chrom5_left = section.match(
     name='chrom5_l',
@@ -313,10 +311,9 @@ opt = opt_dqxy
 opt.step(10)
 
 
-tw_om_final = twiss_off_momentum(section=section)
+tw_om_final = act.run()
 
-tw_om_final_full = twiss_off_momentum(section=section,
-                                delta_range=(-2e-2, 2e-2), num_delta=41,
+tw_om_final_full = act.run(delta_range=(-2e-2, 2e-2), num_delta=41,
                                 edge_l=0,edge_r=-1)
 # tw_vs_delta = line.get_non_linear_chromaticity(delta0_range=(-1e-2, 1e-2), num_delta=50)
 

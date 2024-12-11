@@ -47,7 +47,7 @@ class Starfish(xt.Action):
         p_test_y = self.p_test_y
         p_test_xy = self.p_test_xy
 
-        line_starfish.track(num_turns=6, particles=self.p_test_x.copy(), turn_by_turn_monitor=True)
+        line_starfish.track(num_turns=6, particles=p_test_x.copy(), turn_by_turn_monitor=True)
         mon_x = line_starfish.record_last_track
         ncoord_x = tw_sf.get_normalized_coordinates(mon_x,
                                                 nemitt_x=nemitt_x, nemitt_y=nemitt_y)
