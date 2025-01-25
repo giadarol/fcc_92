@@ -67,6 +67,7 @@ env["by_ff_out"] = 1600.0
 env["byfr"] = -0.003034615
 env["byip"] = 0.0007
 env["clength_adj"] = 1.467
+env["cs_comp"] = 0.0
 env["cs_frac"] = 0.0
 env["dang0"] = 0.0
 env["dd56"] = -0.004801018
