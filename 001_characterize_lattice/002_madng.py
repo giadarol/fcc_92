@@ -14,11 +14,26 @@ env["ksdm1r"] = env["ksdm1r"] # Set by value
 
 line = env.fccee_p_ring.copy(shallow=True)
 line.replace_all_repeated_elements()
-line.build_madng_model()
-
 tw = line.twiss4d()
 
-mng = line.to_madng(sequence_name='seq')#, temp_fname='ttt', keep_files=True)
+
+# sequence_name = 'seq'
+# if line.tracker is None:
+#     line.build_tracker()
+# mng = line.to_madng(sequence_name=sequence_name)
+# mng._sequence_name = sequence_name
+# line.tracker._madng = mng
+# line.tracker._madng_vars = xt.madng_interface.MadngVars(mng)
+# line.vars.vars_to_update.add(line.tracker._madng_vars)
+# mng = line.tracker._madng
+
+mng = xt.madng_interface.build_madng_model(line, sequence_name='seq')
+
+# line.build_madng_model()
+# mng = line.tracker._madng
+
+# mng = line.to_madng(sequence_name='seq')#, temp_fname='ttt', keep_files=True)
+
 
 mng.send('''
 local damap in MAD
