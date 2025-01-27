@@ -54,6 +54,9 @@ slicing_strategies = [
     Strategy(slicing=Teapot(5), name=r'qf4a.*'),
     Strategy(slicing=Teapot(5), name=r'qd5a.*'),
     Strategy(slicing=Teapot(5), name=r'qf6a.*'),
+    # Sextupoles and octupoles
+    Strategy(slicing=Teapot(1), element_type=xt.Sextupole),
+    Strategy(slicing=Teapot(1), element_type=xt.Octupole),
 ]
 
 line.slice_thick_elements(slicing_strategies=slicing_strategies)
