@@ -19,6 +19,9 @@ tw_quads_sorted = tw_quads.rows[i_sorted[::-1]]
 
 line = line_thick.copy(shallow=True)
 
+# Remove repeated elements to be ready to install magnetic errors and misalignments
+line.replace_all_repeated_elements()
+
 Strategy = xt.slicing.Strategy
 Teapot = xt.slicing.Teapot
 

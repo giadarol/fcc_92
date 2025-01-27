@@ -8,16 +8,17 @@ line['rf_lag'] = 0.5
 n_turns_track_test = 6000
 num_particles_test = 150
 
-line.remove('rfc::3')
-line.remove('rfc::2')
-line.remove('rfc::0')
-
+line['rf_lag'] = 0.5
+# Leave only one cavity
+line.remove('rfc.0')
+line.remove('rfc.2')
+line.remove('rfc.3')
 line['rf_voltage'] = 200.
 
 line.replace_all_repeated_elements()
 
-line['qd0ar'].rot_s_rad = 0.5e-5
-line['qd0al'].rot_s_rad = 0.1e-5
+line['qd0ar.1'].rot_s_rad = 0.5e-5
+line['qd0al.1'].rot_s_rad = 0.1e-5
 # line['qd0al'].shift_y = -1e-6
 tw0 = line.twiss4d()
 
@@ -39,6 +40,9 @@ bsize_disp_only = tw.get_beam_covariance(
     gemitt_x=0.,
     gemitt_y=0.,
     gemitt_zeta=tw.eq_gemitt_zeta)
+
+print('Vertical beam size:           ', bsize['sigma_y', 'ip.1'])
+print('Vertical beam size (emit only): ', bsize_v_emit_only['sigma_y', 'ip.1'])
 
 line.configure_radiation(model='quantum')
 p = line.build_particles(num_particles=num_particles_test)

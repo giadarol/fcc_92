@@ -2,11 +2,10 @@ import xtrack as xt
 
 line = xt.Line.from_json('fccee_p_ring_thin.json.gz')
 line['rf_lag'] = 0.5
-
-line.remove('rfc::3')
-line.remove('rfc::2')
-line.remove('rfc::0')
-
+# Leave only one cavity
+line.remove('rfc.0')
+line.remove('rfc.2')
+line.remove('rfc.3')
 line['rf_voltage'] = 200.
 
 tt = line.get_table()
