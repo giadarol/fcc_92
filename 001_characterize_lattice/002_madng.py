@@ -6,6 +6,7 @@ env.call('../fccee_z_lattice.py')
 env.call('../fccee_z_strengths.py')
 
 line = env.fccee_p_ring.copy(shallow=True)
+
 line.replace_all_repeated_elements()
 tw = line.twiss4d()
 
