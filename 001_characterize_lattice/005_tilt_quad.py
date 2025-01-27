@@ -2,7 +2,9 @@ import xtrack as xt
 import xobjects as xo
 import numpy as np
 
-line = xt.Line.from_json('fccee_p_ring_thin.json.gz')
+env = xt.Environment.from_json('fccee_p_ring.json.gz')
+line = env.fccee_p_ring_thin
+
 line['rf_lag'] = 0.5
 
 n_turns_track_test = 6000

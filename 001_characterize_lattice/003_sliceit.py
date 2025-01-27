@@ -71,7 +71,9 @@ print(f'Qx thin:  {tw.qx}, error: {tw.qx - tw_thick.qx:.2e}')
 print(f'Qy thick: {tw_thick.qy}')
 print(f'Qy thin:  {tw.qy}, error: {tw.qy - tw_thick.qy:.2e}')
 
-line.to_json('fccee_p_ring_thin.json.gz')
+env['fccee_p_ring_thin'] = line
+
+env.to_json('fccee_p_ring.json.gz')
 
 
 line['rf_lag'] = 0.5
