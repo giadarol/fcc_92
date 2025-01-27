@@ -25,7 +25,7 @@ Teapot = xt.slicing.Teapot
 slicing_strategies = [
     Strategy(slicing=None),  # Default catch-all as in MAD-X
     Strategy(slicing=Teapot(2), element_type=xt.Bend),
-    # Strategy(slicing=Teapot(5), element_type=xt.Quadrupole),
+    Strategy(slicing=Teapot(10), element_type=xt.Quadrupole),
     # Quad with betas above 5000 m
     Strategy(slicing=Teapot(200), name=r'qd0al.*'),
     Strategy(slicing=Teapot(200), name=r'qd0br.*'),
