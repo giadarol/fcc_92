@@ -58,5 +58,3 @@ print(f'Qx thick: {tw_thick.qx}')
 print(f'Qx thin:  {tw.qx}, error: {tw.qx - tw_thick.qx:.2e}')
 print(f'Qy thick: {tw_thick.qy}')
 print(f'Qy thin:  {tw.qy}, error: {tw.qy - tw_thick.qy:.2e}')
-
-
