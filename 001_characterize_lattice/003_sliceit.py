@@ -23,21 +23,23 @@ line = line_thick.copy(shallow=True)
 Strategy = xt.slicing.Strategy
 Teapot = xt.slicing.Teapot
 
-# Quads with betas above above 2000 m
-# qd0bl::0       1057.38       4249.39       4249.39
-# qy3l::0        226.316       3893.89       3893.89
-# qf1ar::0        1115.8       3831.32       3831.32
-# qf1al::0       1325.74       3437.01       3437.01
-# qf1bl::0       1331.54       3414.39       3414.39
-# qd1l::0        1405.88       3150.57       3150.57
-# qf1br::0       1315.17       3066.99       3066.99
-# qy2l::0        843.651       2956.75       2956.75
-# qf2l::0        2942.48       821.613       2942.48
-# qd1r::0        768.307        2134.7        2134.7
+# Quads with betas above above 1000 m
+# qf8r::0        129.198       1814.78       1814.78
+# qy2r::0        432.512       1746.74       1746.74
+# qy3r::0        68.3759       1628.46       1628.46
+# qdm8r::0        66.671       1599.71       1599.71
+# qd20l::0       66.6715       1599.71       1599.71
+# qd20r::0       66.9952       1592.45       1592.45
+# qdm8l::0        71.838       1483.52       1483.52
+# qf8l::0        734.272       1473.86       1473.86
+# qx0l::0        1040.71       42.1744       1040.71
+# qf12l::0        1040.7       42.2293        1040.7
+# qf13l::0       1025.25       42.0447       1025.25
 
 slicing_strategies = [
     Strategy(slicing=None),  # Default catch-all as in MAD-X
-    Strategy(slicing=Teapot(3), element_type=xt.Bend),
+    Strategy(slicing=Teapot(2), element_type=xt.Bend),
+    Strategy(slicing=Teapot(5), element_type=xt.Quadrupole),
     # Quad with betas above 5000 m
     Strategy(slicing=Teapot(200), name=r'qd0al.*'),
     Strategy(slicing=Teapot(200), name=r'qd0br.*'),
@@ -59,33 +61,11 @@ slicing_strategies = [
     Strategy(slicing=Teapot(100), name=r'qy2l.*'),
     Strategy(slicing=Teapot(100), name=r'qf2l.*'),
     Strategy(slicing=Teapot(100), name=r'qd1r.*'),
-# qd0ar::0       6913.04
-# qd0br::0       8371.59
-# qf1ar::0       3831.32
-# qf1br::0       3066.99
-    # Strategy(slicing=Teapot(50), element_type=xt.Quadrupole), # Starting point
-    # Strategy(slicing=Teapot(5), name=r'^qf.*'),
-    # Strategy(slicing=Teapot(5), name=r'^qd.*'),
-    # Strategy(slicing=Teapot(5), name=r'^qfg.*'),
-    # Strategy(slicing=Teapot(5), name=r'^qdg.*'),
-    # Strategy(slicing=Teapot(5), name=r'^ql.*'),
-    # Strategy(slicing=Teapot(5), name=r'^qs.*'),
-    # Strategy(slicing=Teapot(10), name=r'^qb.*'),
-    # Strategy(slicing=Teapot(10), name=r'^qg.*'),
-    # Strategy(slicing=Teapot(10), name=r'^qh.*'),
-    # Strategy(slicing=Teapot(10), name=r'^qi.*'),
-    # Strategy(slicing=Teapot(10), name=r'^qr.*'),
-    # Strategy(slicing=Teapot(10), name=r'^qu.*'),
-    # Strategy(slicing=Teapot(10), name=r'^qy.*'),
-    # Strategy(slicing=Teapot(50), name=r'^qa.*'),
-    # Strategy(slicing=Teapot(50), name=r'^qc.*'),
-    # Strategy(slicing=Teapot(20), name=r'^sy\..*'),
-    # Strategy(slicing=Teapot(30), name=r'^mwi\..*'),
 ]
 
 line.slice_thick_elements(slicing_strategies=slicing_strategies)
 
-tw = line.twiss4d()
+tw = line.twiss4d(strengths=True)
 
 print(f'Qx thick: {tw_thick.qx}')
 print(f'Qx thin:  {tw.qx}, error: {tw.qx - tw_thick.qx:.2e}')
