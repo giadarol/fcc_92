@@ -11,8 +11,11 @@ env.call('matching_constraints.py')
 line = -env['ccs_yl']
 
 tt0 = line.get_table(attr=True)
+tt0_bend = tt0.rows[(tt0.element_type == 'Bend') | (tt0.element_type == 'RBend')]
 tt0_quad = tt0.rows[tt0.element_type == 'Quadrupole']
 tt0_sext = tt0.rows[tt0.element_type == 'Sextupole']
+
+line.set(tt0_bend.env_name, model='mat-kick-mat', integrator='uniform', num_multipole_kicks=1)
 
 tw0 = line.twiss(betx=env['bxip'], bety=env['byip'], strengths=True)
 

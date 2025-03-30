@@ -83,7 +83,7 @@ at_end_file.append('')
 BASE_TYPE_DEFS = '''
 # Base types
 env.new("sbend", "Bend")
-env.new("rbend", "Bend", rbend=True)
+env.new("rbend", "RBend")
 env.new("quadrupole", "Quadrupole")
 env.new("sextupole", "Sextupole")
 env.new("octupole", "Octupole")
@@ -175,6 +175,7 @@ for nn in tt_other.name:
 out_lattice_parameters = []
 for nn in lattice_parameters:
     out_lattice_parameters.append(tt_other['statement', nn])
+    
 
 with open('_part_description.py', 'r') as fid:
     part_description = [fid.read()]
