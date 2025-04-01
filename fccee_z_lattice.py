@@ -2,8 +2,6 @@ import xtrack as xt
 env = xt.get_environment()
 env.vars.default_to_zero=True
 
-# Reference particle
-env.particle_ref = xt.Particles(mass0=xt.ELECTRON_MASS_EV, energy0=45.6e9)
 ####################
 # FCC-ee Z lattice #
 ####################
@@ -31,6 +29,8 @@ env.particle_ref = xt.Particles(mass0=xt.ELECTRON_MASS_EV, energy0=45.6e9)
 
 # Note that l/r are for the service insertion are defined wrt the ip and not
 # wrt the center of the insertion.
+# Reference particle
+env.particle_ref = xt.Particles(mass0=xt.ELECTRON_MASS_EV, energy0=45.6e9)
 
 #############
 # Variables #
@@ -143,6 +143,8 @@ env["alfy"] = -6.41292433132e-16
 env["betx"] = 48.456325941938
 env["bety"] = 127.5237051593
 env["rf_lag"] = 0.4
+env["f_rev"] = 3306.828357898286
+env["harmonic_number"] = 121200.0
 ############
 # Elements #
 ############
@@ -390,7 +392,7 @@ env.new("sdy1r", "sextupole", k2="ksdy1r", length="(l_sxtd / 4.0)", extra={})
 env.new("sdm1r", "sextupole", length="(l_sxtm / 2.0)", k2="ksdm1r", extra={})
 
 # Elements of type: rfcavity
-env.new("rfc", "rfcavity", lag="(rf_lag * 360.0)", voltage="(rf_voltage * 1000000.0)", extra={})
+env.new("rfc", "rfcavity", frequency="(harmonic_number * f_rev)", lag="(rf_lag * 360.0)", voltage="(rf_voltage * 1000000.0)", extra={})
 
 # Elements of type: marker
 env.new("scenter", "marker", extra={})

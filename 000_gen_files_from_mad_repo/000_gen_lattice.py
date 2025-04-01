@@ -65,6 +65,11 @@ def _elem_to_tokens(env, nn, formatter):
 fname = '../../fcc-ee-lattice/lattices/z/fccee_z.seq'
 env = xt.load_madx_lattice(fname)
 
+# Impose RF frequency (in madx it is defined by harmon, not supported by xtrack)
+env['f_rev'] = 3306.828357898286
+env['harmonic_number'] = 121200
+env['rfc'].frequency = 'harmonic_number * f_rev'
+
 ###################
 # Handle elements #
 ###################
@@ -247,8 +252,8 @@ env.vars.default_to_zero=False
 
 file_content = '\n'.join([
     preamble,
-    part_ref_particle,
     part_description,
+    part_ref_particle,
    '',
    '#############',
    '# Variables #',
