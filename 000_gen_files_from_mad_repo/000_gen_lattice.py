@@ -190,19 +190,26 @@ const = set(CONSTANTS.keys())
 lattice_parameters = [nn for nn in ttvars.name if nn not in const]
 
 tt_lattice_pars_all = ttvars.rows[lattice_parameters]
-mask_keep = (tt_lattice_pars_all['expr'] != None) | (tt_lattice_pars_all['value'] != 0)
+mask_keep = (
+    ((tt_lattice_pars_all['expr'] != None) | (tt_lattice_pars_all['value'] != 0))
+    & (tt_lattice_pars_all['name'] != '__temp__'))
 tt_lattice_pars = tt_lattice_pars_all.rows[mask_keep]
 
-lines_vars = []
+statement = []
 for nn in tt_lattice_pars.name:
-    if nn == '__temp__':
-        continue
     if tt_lattice_pars['expr', nn] is not None:
-        lines_vars.append(f'env["{nn}"] = "{tt_lattice_pars["expr", nn]}"')
+        statement.append(f'env["{nn}"] = "{tt_lattice_pars["expr", nn]}"')
     else:
-        lines_vars.append(f'env["{nn}"] = {tt_lattice_pars["value", nn]}')
-lines_vars.append('')
-vars_part = '\n'.join(lines_vars)
+        statement.append(f'env["{nn}"] = {tt_lattice_pars["value", nn]}')
+tt_lattice_pars['statement'] = np.array(statement)
+
+# Separate strengths
+mask_strengths = tt_lattice_pars.rows.mask['k.*']
+tt_strengths = tt_lattice_pars.rows[mask_strengths]
+tt_lattice_other_pars = tt_lattice_pars.rows[~mask_strengths]
+
+strengths_part = '\n'.join(tt_strengths['statement'])
+other_lattice_pars_part = '\n'.join(tt_lattice_other_pars['statement'])
 
 ######################
 # Lattice definition #
@@ -224,6 +231,14 @@ env = xt.get_environment()
 env.vars.default_to_zero=True
 '''
 
+# Reference particle
+lines_ref_particle = [
+    '# Reference particle',
+    'env.particle_ref = xt.Particles(mass0=xt.ELECTRON_MASS_EV, energy0=45.6e9)'
+]
+part_ref_particle = '\n'.join(lines_ref_particle)
+
+
 postamble = '''
 
 env.vars.default_to_zero=False
@@ -232,13 +247,14 @@ env.vars.default_to_zero=False
 
 file_content = '\n'.join([
     preamble,
+    part_ref_particle,
     part_description,
    '',
    '#############',
    '# Variables #',
    '#############',
    '',
-   vars_part,
+   other_lattice_pars_part,
    '############',
    '# Elements #',
    '############',
@@ -253,3 +269,14 @@ file_content = '\n'.join([
 
 with open('fccee_z_lattice.py', 'w') as ff:
     ff.write(file_content)
+
+out_strengths = '\n'.join(
+    [preamble, strengths_part, postamble]
+)
+with open('fccee_z_strengths.py', 'w') as ff:
+    ff.write(out_strengths)
+
+# Copy lattice and strengths to the main directory
+import shutil
+shutil.copy('fccee_z_lattice.py', '..')
+shutil.copy('fccee_z_strengths.py', '..')
