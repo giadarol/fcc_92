@@ -1,236 +1,255 @@
 import numpy as np
 import xtrack as xt
+import xdeps as xd
 from xtrack.mad_parser.parse import MadxParser
-from xtrack.mad_parser.loader import MadxLoader, get_params
+from xtrack.mad_parser.loader import CONSTANTS
 
-parser = MadxParser()
-loader = MadxLoader()
+formatter = xd.refs.CompactFormatter(scope=None)
+SKIP_PARAMS = ['order', 'model', '_edge_entry_model', '_edge_exit_model',
+               'k0_from_h', 'h']
+
+
+def _repr_arr_ref(arr_ref, formatter):
+    out = []
+    for ii, vv in enumerate(arr_ref._value):
+        if arr_ref[ii]._expr is not None:
+            out.append(f'"{arr_ref[ii]._expr._formatted(formatter)}"')
+        else:
+            out.append(f'{arr_ref[ii]._value:g}')
+
+    # Trim trailing zeros
+    while out and (out[-1] == '0' or out[-1] == '-0'):
+        out.pop()
+
+    return f'[{", ".join(out)}]'
+
+def _elem_to_tokens(env, nn, formatter):
+
+    ee = env.get(nn)
+    ee_ref = env.ref[nn]
+
+    # The fields to consider are those in the dictionary, plus knl and ksl, plus
+    # anything that has an expression
+    fields = list(ee.to_dict().keys())
+    if hasattr(ee, 'knl'):
+        fields += ['knl']
+    if hasattr(ee, 'ksl'):
+        fields += ['ksl']
+
+    tt = env[nn].get_table()
+    for kk in tt.name:
+        if tt['expr', kk] is not None and tt['expr', kk] != 'None':
+            fields.append(kk)
+
+    params = []
+    for kk in fields:
+        if kk == '__class__':
+            continue
+        if kk in SKIP_PARAMS:
+            continue
+        if kk == 'knl' or kk == 'ksl':
+            arr_ref = getattr(ee_ref, kk)
+            vv = _repr_arr_ref(arr_ref, formatter)
+            if vv != '[]':
+                params.append(f'{kk}={vv}')
+        elif getattr(ee_ref, kk)._expr is not None:
+            params.append(f'{kk}="{getattr(ee_ref, kk)._expr._formatted(formatter)}"')
+        else:
+            params.append(f'{kk}={getattr(ee_ref, kk)._value:g}')
+
+    out = {'name': nn, 'element_type': ee.__class__.__name__, 'params': params,
+           'prototype': getattr(ee, 'prototype', None),
+           'extra': getattr(ee, 'extra', None)}
+    return out
 
 fname = '../../fcc-ee-lattice/lattices/z/fccee_z.seq'
+env = xt.load_madx_lattice(fname)
 
-with open(fname, 'r') as fid:
-    lines = fid.readlines()
+###################
+# Handle elements #
+###################
 
-# Remove lines containing the "LINE" command (not yet implemented)
-lines = [ll for ll in lines if 'LINE=' not in ll.replace(' ', '')]
+all_elems = []
+for lname in env.lines.keys():
+    ll = env.lines[lname]
+    bb = ll.builder.flatten()
+    all_elems += [cc.name for cc in bb.components]
 
-# Patch: issue with power
-for ii, ll in enumerate(lines):
-    lines[ii] = ll.replace('^', ' ^ ')
+elem_tokens = {}
+for nn in all_elems:
+    elem_tokens[nn] = _elem_to_tokens(env, nn, formatter)
 
-dct = parser.parse_string('\n'.join(lines))
-loader.load_string('\n'.join(lines))
+while True:
+    added = False
+    for nn in list(elem_tokens.keys()):
+        if elem_tokens[nn]['prototype'] is not None:
+            parent_name = elem_tokens[nn]['prototype']
+            if parent_name not in elem_tokens:
+                elem_tokens[parent_name] = _elem_to_tokens(env, parent_name, formatter)
+                added = True
+    if not added:
+        break
 
-elements = dct['elements']
-element_defs = []
-name = []
-parent = []
-for nn, el_params in elements.items():
+# Some customizations
+elem_tokens['multipole']['params'].append('knl=[0,0,0,0,0,0]')
 
-    par = el_params.pop('parent')
-    assert par != 'sequence'
-    parent.append(par)
-    name.append(nn)
+# remove length when length_straight is present
+for nn in elem_tokens:
+    if 'length_straight' in elem_tokens[nn]['params']:
+        elem_tokens[nn]['params'] = [pp for pp in elem_tokens[nn]['params'] if pp != 'length']
 
-    params, extras = get_params(el_params, parent=par)
-    el_params = loader._pre_process_element_params(nn, params)
-
-    # PATCH!!!!
-    if par in ['sbend', 'rbend']:
-        el_params['k0_from_h'] = True
-
-    ee_def_tokens = []
-    ee_def_tokens.append(f"'{nn}'")
-    ee_def_tokens.append(f"'{par}'")
-    for pp, vv in el_params.items():
-        if isinstance(vv, str):
-            ee_def_tokens.append(f"{pp}='{vv}'")
-        else:
-            ee_def_tokens.append(f"{pp}={vv}")
-    ee_def = 'env.new(' + ', '.join(ee_def_tokens) + ')'
-    element_defs.append(ee_def)
-
-tt_elements = xt.Table({
-    'name': np.array(name),
-    'parent': np.array(parent),
-    'element_defs': np.array(element_defs),
-})
-
-tt_ele_dct ={}
-
-ele_types = ['marker', 'sbend', 'rbend', 'quadrupole', 'sextupole',
-           'octupole', 'multipole', 'drift', 'rfcavity']
-
-for pp in ele_types:
-    tt_ele_dct[pp] = tt_elements.rows[tt_elements.parent == pp]
-
-parameters = set(list(tt_elements.name))
-for pp in tt_ele_dct:
-    parameters = parameters.difference(set(list(tt_ele_dct[pp].name)))
-
-assert len(parameters) == 0
-
-at_start_file = []
-at_start_file.append('import xtrack as xt')
-at_start_file.append('env = xt.get_environment()')
-at_start_file.append('env.vars.default_to_zero=True')
-at_start_file.append('')
-
-at_end_file = []
-at_end_file.append('env.vars.default_to_zero=False')
-at_end_file.append('')
-
-BASE_TYPE_DEFS = '''
-# Base types
-env.new("sbend", "Bend")
-env.new("rbend", "RBend")
-env.new("quadrupole", "Quadrupole")
-env.new("sextupole", "Sextupole")
-env.new("octupole", "Octupole")
-env.new("marker", "Marker")
-env.new("rfcavity", "Cavity")
-env.new("multipole", "Multipole", knl=[0, 0, 0, 0, 0, 0])
-env.new("solenoid", "Solenoid")
-env.new("drift", "Drift")
-'''
-
-out_elements = []
-out_elements.append(BASE_TYPE_DEFS)
-for pp in ele_types:
-    if len(tt_ele_dct[pp]) == 0:
-        continue
-    out_elements.append(f'# {pp} elements:')
-    for nn in tt_ele_dct[pp].name:
-        out_elements.append(tt_elements['element_defs', nn])
-    out_elements.append('')
-
-## Variables
-variables = dct['vars']
-v_names = []
-v_expr = []
-for nn, vv in variables.items():
-    v_names.append(nn)
-    v_expr.append(vv['expr'])
-
-tt_vars = xt.Table({
-    'name': np.array(v_names),
-    'expr': np.array(v_expr),
-})
-
-# Identify expressions
-env_vars = xt.Environment()
-env_vars.vars.default_to_zero = True
-for nn in tt_vars.name:
-    env_vars[nn] = tt_vars['expr', nn]
-tt_env_vars = env_vars.vars.get_table()
-is_expr = [(tt_env_vars['expr', nn] is not None) for nn in tt_vars.name]
-tt_vars['is_expr'] = np.array(is_expr)
-
-out_statement = []
-for nn in tt_vars.name:
-    if tt_vars['is_expr', nn]:
-        out_statement.append(f'env["{nn}"] = "{tt_vars["expr", nn]}"')
+# populate diff params
+for nn in elem_tokens:
+    diff_params = []
+    if elem_tokens[nn]['prototype'] is not None:
+        parent_name = elem_tokens[nn]['prototype']
+        parent_params = elem_tokens[parent_name]['params']
+        elem_params = set(elem_tokens[nn]['params'])
+        for pp in elem_params:
+            if pp not in parent_params:
+                diff_params.append(pp)
     else:
-        out_statement.append(f'env["{nn}"] = {tt_vars["expr", nn]}')
+        diff_params = elem_tokens[nn]['params']
+    elem_tokens[nn]['diff_params'] = diff_params
 
-tt_vars['statement'] = np.array(out_statement)
+# Build def instruction
+for nn in elem_tokens:
+    out_parts = []
+    out_parts.append(f'env.new("{nn}"')
+    if elem_tokens[nn]['prototype'] is not None:
+        out_parts.append(f'"{elem_tokens[nn]["prototype"]}"')
+    else:
+        out_parts.append(f'"{elem_tokens[nn]["element_type"]}"')
+    if len(elem_tokens[nn]['diff_params']) > 0:
+        out_parts += elem_tokens[nn]['diff_params']
+    if elem_tokens[nn]['extra'] is not None:
+        out_parts.append(f'extra={elem_tokens[nn]["extra"]}')
+    elem_tokens[nn]['def_instruction'] = ', '.join(out_parts) + ')'
 
+# Sort based on hierarchy
+sorted_elems = []
+def _add_elem(nn):
+    if elem_tokens[nn]['prototype'] is not None:
+        _add_elem(elem_tokens[nn]['prototype'])
+    if nn not in sorted_elems:
+        sorted_elems.append(nn)
+for nn in elem_tokens:
+    _add_elem(nn)
 
-tt_strengths = tt_vars.rows['k.*']
-parameters = sorted(list(set(list(tt_vars.name)) - set(list(tt_strengths.name))))
-tt_other = tt_vars.rows[parameters]
+tt_edefs = xt.Table({
+    'name': np.array(sorted_elems),
+    'element_type': np.array([elem_tokens[nn]['element_type'] for nn in sorted_elems]),
+    'prototype': np.array([elem_tokens[nn]['prototype'] for nn in sorted_elems]),
+    'def_instruction': np.array([elem_tokens[nn]['def_instruction'] for nn in sorted_elems]),
+})
 
+tt_gen0 = tt_edefs.rows[tt_edefs['prototype'] == None]
+tt_gen0.gen_name = 'Xsuite types'
 
-out_strengths = []
-for nn in sorted(list(tt_strengths.name)):
-    out_strengths.append(tt_strengths['statement', nn])
+generation_tree = [{'Xsuite types': tt_gen0}]
+while True:
+    print(f'Generation {len(generation_tree)}')
+    last_gen = generation_tree[-1]
+    names_last_gen = []
+    for nn in last_gen.keys():
+        names_last_gen += list(last_gen[nn]['name'])
+    this_gen = {}
+    added = False
+    for nn in names_last_gen:
+        tt_gen = tt_edefs.rows[tt_edefs['prototype'] == nn]
+        if len(tt_gen) > 0:
+            tt_gen.gen_name = nn
+            this_gen[nn] = tt_gen
+            added = True
+    if added:
+        generation_tree.append(this_gen)
+    else:
+        break
 
-out_other = []
-for nn in sorted(list(tt_other.name)):
-    out_other.append(tt_other['statement', nn])
+# Flatten generations
+generations = []
+for gg in generation_tree:
+    for nn in gg.keys():
+        generations.append(gg[nn])
 
-with open('_tmp_elements.py', 'w') as fid:
-    fid.write('\n'.join(
-        at_start_file + out_elements + at_end_file))
+# Build elem def part (with generations)
+elem_def_lines = []
+for tt_gen in generations:
+    elem_def_lines.append(f'\n# Elements of type: {tt_gen.gen_name}')
+    for nn in tt_gen.name:
+        elem_def_lines.append(elem_tokens[nn]['def_instruction'])
 
-with open('_tmp_parameters.py', 'w') as fid:
-    fid.write('\n'.join(
-        at_start_file + out_other + at_end_file))
+elem_def_part = '\n'.join(elem_def_lines)
 
-with open('_tmp_strengths.py', 'w') as fid:
-    fid.write('\n'.join(
-        at_start_file + out_strengths + at_end_file))
+####################
+# Handle variables #
+####################
 
-# Separate lattice parameters from other parameters
-env = xt.Environment()
-env.call('_tmp_elements.py')
-env.call('_tmp_parameters.py')
-env.call('_tmp_strengths.py')
+ttvars = env.vars.get_table()
+const = set(CONSTANTS.keys())
+lattice_parameters = [nn for nn in ttvars.name if nn not in const]
 
-lattice_parameters = []
-for nn in tt_other.name:
-    if 'element_refs' in str(env.ref[nn]._find_dependant_targets()):
-        lattice_parameters.append(nn)
+tt_lattice_pars_all = ttvars.rows[lattice_parameters]
+mask_keep = (tt_lattice_pars_all['expr'] != None) | (tt_lattice_pars_all['value'] != 0)
+tt_lattice_pars = tt_lattice_pars_all.rows[mask_keep]
 
-out_lattice_parameters = []
-for nn in lattice_parameters:
-    out_lattice_parameters.append(tt_other['statement', nn])
-    
+lines_vars = []
+for nn in tt_lattice_pars.name:
+    if nn == '__temp__':
+        continue
+    if tt_lattice_pars['expr', nn] is not None:
+        lines_vars.append(f'env["{nn}"] = "{tt_lattice_pars["expr", nn]}"')
+    else:
+        lines_vars.append(f'env["{nn}"] = {tt_lattice_pars["value", nn]}')
+lines_vars.append('')
+vars_part = '\n'.join(lines_vars)
+
+######################
+# Lattice definition #
+######################
 
 with open('_part_description.py', 'r') as fid:
-    part_description = [fid.read()]
+    part_description = fid.read()
 
 with open('_part_lattice.py', 'r') as fid:
-    part_lattice = [fid.read()]
+    part_lattice = fid.read()
 
-# RF frequency
-out_rf_frequency = [
-    '# RF frequency',
-    'env["rfc"].frequency = 121200*3306.828357898286'
-]
 
-# Reference particle
-out_ref_particle = [
-    '# Reference particle',
-    'env.particle_ref = xt.Particles(mass0=xt.ELECTRON_MASS_EV, energy0=45.6e9)'
-]
+#####################
+# Assemble the file #
+#####################
 
-with open('fccee_z_lattice.py', 'w') as fid:
-    fid.write('\n'.join(
-        part_description +
-        [''] +
-        at_start_file +
-        out_ref_particle +
-        [''] +
-        ['# Lattice parameters:'] +
-        out_lattice_parameters +
-        out_elements +
-        out_rf_frequency +
-        [''] +
-        ['# Ring sections:'] +
-        part_lattice +
-        at_end_file))
+preamble = '''import xtrack as xt
+env = xt.get_environment()
+env.vars.default_to_zero=True
+'''
 
-with open('fccee_z_strengths.py', 'w') as fid:
-    fid.write('\n'.join(
-        at_start_file + out_strengths + at_end_file))
+postamble = '''
 
-other_parameters = sorted(list(
-                          set(list(tt_vars.name))
-                        - set(lattice_parameters)
-                        - set(list(tt_strengths.name))))
-out_other_parameters = []
-for nn in other_parameters:
-    out_other_parameters.append(tt_vars['statement', nn])
+env.vars.default_to_zero=False
 
-with open('fccee_z_other_parameters.py', 'w') as fid:
-    fid.write('\n'.join(
-        at_start_file +
-        ['# Other parameters:'] +
-        out_other_parameters +
-        at_end_file))
+'''
 
-# Copy lattice and strengths to the main directory
-import shutil
-shutil.copy('fccee_z_lattice.py', '..')
-shutil.copy('fccee_z_strengths.py', '..')
+file_content = '\n'.join([
+    preamble,
+    part_description,
+   '',
+   '#############',
+   '# Variables #',
+   '#############',
+   '',
+   vars_part,
+   '############',
+   '# Elements #',
+   '############',
+   elem_def_part,
+   '',
+   '##############',
+   '# Beam lines #',
+   '##############',
+   '',
+   part_lattice,
+   postamble])
+
+with open('fccee_z_lattice.py', 'w') as ff:
+    ff.write(file_content)
