@@ -6,7 +6,9 @@ from xtrack.mad_parser.loader import CONSTANTS
 
 formatter = xd.refs.CompactFormatter(scope=None)
 SKIP_PARAMS = ['order', 'model', '_edge_entry_model', '_edge_exit_model',
-               'k0_from_h', 'h']
+               'h',
+               'k0' # we assume that k0 is always equal to h
+]
 
 
 def _repr_arr_ref(arr_ref, formatter):
