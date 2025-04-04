@@ -65,24 +65,22 @@ for ss in sl_match:
 # sd2aul vars['ksd2ul'] ((vars['ksdfam2'] - ((0.0 * vars['dogleg_on']) * vars['sxt_on'])) + (0.058 * vars['sxt_on']))
 
 env.vars.default_to_zero = True
-ss_sext_strengths = {}
-ss_sext_strengths['ksd2ur'] = 'ksdfam2 + ksd2ur_delta'
-ss_sext_strengths['ksf1ur'] = 'ksffam1 + ksf1ur_delta'
-ss_sext_strengths['ksd1ur'] = 'ksdfam1 + ksd1ur_delta'
-ss_sext_strengths['ksf2ur'] = 'ksffam2 + ksf2ur_delta'
-ss_sext_strengths['ksf2sr'] = 'ksffam2 + ksf2sr_delta'
-ss_sext_strengths['ksd1sr'] = 'ksdfam1 + ksd1sr_delta'
-ss_sext_strengths['ksf1sr'] = 'ksffam1 + ksf1sr_delta'
-ss_sext_strengths['ksf3sr'] = 0
-ss_sext_strengths['ksf3sl'] = 0
-ss_sext_strengths['ksf1sl'] = 'ksffam1 + ksf1sl_delta'
-ss_sext_strengths['ksd1sl'] = 'ksdfam1 + ksd1sl_delta'
-ss_sext_strengths['ksf2sl'] = 'ksffam2 + ksf2sl_delta'
-ss_sext_strengths['ksf2ul'] = 'ksffam2 + ksf2ul_delta'
-ss_sext_strengths['ksd1ul'] = 'ksdfam1 + ksd1ul_delta'
-ss_sext_strengths['ksf1ul'] = 'ksffam1 + ksf1ul_delta'
-ss_sext_strengths['ksd2ul'] = 'ksdfam2 + ksd2ul_delta'
-env.vars.update(ss_sext_strengths)
+env['ksd2ur'] = 'ksdfam2 + ksd2ur_delta'
+env['ksf1ur'] = 'ksffam1 + ksf1ur_delta'
+env['ksd1ur'] = 'ksdfam1 + ksd1ur_delta'
+env['ksf2ur'] = 'ksffam2 + ksf2ur_delta'
+env['ksf2sr'] = 'ksffam2 + ksf2sr_delta'
+env['ksd1sr'] = 'ksdfam1 + ksd1sr_delta'
+env['ksf1sr'] = 'ksffam1 + ksf1sr_delta'
+env['ksf3sr'] = 0
+env['ksf3sl'] = 0
+env['ksf1sl'] = 'ksffam1 + ksf1sl_delta'
+env['ksd1sl'] = 'ksdfam1 + ksd1sl_delta'
+env['ksf2sl'] = 'ksffam2 + ksf2sl_delta'
+env['ksf2ul'] = 'ksffam2 + ksf2ul_delta'
+env['ksd1ul'] = 'ksdfam1 + ksd1ul_delta'
+env['ksf1ul'] = 'ksffam1 + ksf1ul_delta'
+env['ksd2ul'] = 'ksdfam2 + ksd2ul_delta'
 env.vars.default_to_zero = False
 
 left_knobs = [
