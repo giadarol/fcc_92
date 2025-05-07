@@ -267,6 +267,11 @@ opt.step(5)
 
 tw_om_chrom3 = act.run()
 
+#------------------ Start with decapoles --------------------
+
+print(' ---> Starting decapole matching')
+
+
 opt_chrom5_left = section.match(
     name='chrom5_l',
     solve=False,
