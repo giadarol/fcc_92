@@ -3,6 +3,8 @@ import xtrack as xt
 env = xt.Environment()
 env.call('../fccee_z_lattice.py')
 
+env['rf_on'] = 0
+
 env.vars.load_json('strengths_quads_00_arc_cell.json')
 env.vars.load_json('strengths_quads_01_ffccsyl.json')
 env.vars.load_json('strengths_quads_02_ffccsxl.json')
